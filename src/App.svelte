@@ -100,8 +100,8 @@
   setInterval(() => departures.length > 0 && getData(), 10000);
 </script>
 
-<main class="flex flex-row flex-wrap justify-center gap-4 mt-4">
-  <div class="flex flex-col gap-2 w-full md:w-72">
+<main class="flex flex-row flex-wrap justify-center gap-4">
+  <div class="flex flex-col gap-2 w-full md:w-72 mt-4">
     {#each defaultStops as stop}
       <button
         class="p-2 bg-slate-100 rounded"
@@ -129,7 +129,7 @@
   <!-- <button on:click={getData}>Refresh</button>
   <button on:click={logData}>Log data</button> -->
   <div
-    class="flex flex-col gap-2 w-full md:w-72 md:h-screen"
+    class="flex flex-col gap-2 w-full md:w-72 md:h-screen pt-4"
     style="overflow: auto;"
   >
     {#each departures as departure (uuidv4())}
