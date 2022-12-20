@@ -1,12 +1,13 @@
 <script lang="ts">
   import { each } from "svelte/internal";
+  import { v4 as uuidv4 } from "uuid";
   import type { operations, components } from "./data/bkk-openapi";
   import Departure from "./lib/Departure.svelte";
   import defaultStops from "./data/defaultStops";
   const stopDataUrl =
     "https://futar.bkk.hu/api/query/v1/ws/otp/api/where/arrivals-and-departures-for-stop.json?";
-  const stopsForLocationUrl =
-    "https://futar.bkk.hu/api/query/v1/ws/otp/api/where/stops-for-location.json?";
+  // const stopsForLocationUrl =
+  //   "https://futar.bkk.hu/api/query/v1/ws/otp/api/where/stops-for-location.json?";
   let stopParams: operations["getArrivalsAndDeparturesForStop"]["parameters"]["query"] =
     {
       stopId: ["BKK_F01004"],
@@ -16,13 +17,13 @@
       minutesAfter: 90,
     };
 
-  let stopsForLocationParams: operations["getStopsForLocation"]["parameters"]["query"] =
-    { query: "Pestszentlőrinc", lon: 47.452734, lat: 19.18329 };
+  // let stopsForLocationParams: operations["getStopsForLocation"]["parameters"]["query"] =
+  //   { query: "Pestszentlőrinc", lon: 47.452734, lat: 19.18329 };
 
   let departures: components["schemas"]["TransitScheduleStopTime"][] = [];
   let references: components["schemas"]["OTPTransitReferences"] = {};
-  let listOfNearbyStops: components["schemas"]["TransitStop"][] = [];
-  let accuracy: string;
+  // let listOfNearbyStops: components["schemas"]["TransitStop"][] = [];
+  // let accuracy: string;
 
   let loading = false;
   // TODO make this a getdata(url,params, type) fn
@@ -44,14 +45,14 @@
         }
       )
       .then((tripData) => {
-        references = tripData?.references;
-        departures = tripData?.entry?.stopTimes;
+        references = tripData?.references!;
+        departures = tripData?.entry?.stopTimes!;
       })
       .catch((err) => console.log(err))
       .finally(() => (loading = false));
   }
 
-  function getStops() {
+  /*   function getStops() {
     loading = true;
     fetch(
       // TODO find a better solution to this type issue
@@ -66,8 +67,8 @@
         return d.data;
       })
       .then((tripData) => {
-        references = tripData?.references;
-        listOfNearbyStops = tripData?.list;
+        references = tripData?.references!;
+        listOfNearbyStops = tripData?.list!;
         console.log(listOfNearbyStops);
       })
       .catch((err) => console.log(err))
@@ -78,7 +79,7 @@
     console.log(departures);
     console.log(departures.length);
     departures.forEach((departure) =>
-      console.log(references.trips[departure.tripId].routeId)
+      console.log(references?.trips?.[departure.tripId!]?.routeId)
     );
   }
 
@@ -94,52 +95,45 @@
       },
       (error) => (accuracy = error.message)
     );
-  };
+  }; */
+
+  setInterval(() => departures.length > 0 && getData(), 10000);
 </script>
 
-<main>
-  <div class="stops-container">
+<main class="flex flex-row flex-wrap justify-center gap-4 mt-4">
+  <div class="flex flex-col gap-2 w-full md:w-72">
     {#each defaultStops as stop}
       <button
+        class="p-2 bg-slate-100 rounded"
         on:click={() => {
           stopParams = { ...stopParams, stopId: stop.id };
           getData();
         }}>{stop.label}</button
       >
     {/each}
-    {#if loading}
-      <p>Loading...</p>
-    {/if}
-    <button on:click={setCurrentLoc}>Get current location</button>
+    <div class="flex items-center gap-2">
+      <button class="border p-2 mt-4 rounded flex-1" on:click={getData}
+        >{loading ? "Loading..." : "Refresh"}</button
+      >
+      <button
+        class="border p-2 mt-4 rounded flex-1"
+        on:click={() => (departures = [])}>Clear</button
+      >
+    </div>
+    <!-- <button on:click={setCurrentLoc}>Get current location</button>
     <button on:click={getStops}>Log stops</button>
     {#if accuracy}
       <div>Accuracy: {accuracy}</div>
-    {/if}
+    {/if} -->
   </div>
   <!-- <button on:click={getData}>Refresh</button>
   <button on:click={logData}>Log data</button> -->
-  <div class="departure-container">
-    {#each departures as departure (departure.tripId + departure.departureTime)}
+  <div
+    class="flex flex-col gap-2 w-full md:w-72 md:h-screen"
+    style="overflow: auto;"
+  >
+    {#each departures as departure (uuidv4())}
       <Departure {departure} {references} />
     {/each}
   </div>
 </main>
-
-<style>
-  .departure-container {
-    display: flex;
-    flex-flow: column;
-    gap: 1rem;
-  }
-  .stops-container {
-    display: flex;
-    flex-flow: column;
-    gap: 0.5rem;
-  }
-  main {
-    display: flex;
-    flex-flow: row wrap;
-    gap: 5rem;
-    margin: auto;
-  }
-</style>
