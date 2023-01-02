@@ -97,7 +97,7 @@
     );
   }; */
 
-  setInterval(() => departures.length > 0 && getData(), 10000);
+  setInterval(() => departures.length > 0 && getData(), 20000);
 </script>
 
 <main class="flex flex-row flex-wrap justify-center gap-4">

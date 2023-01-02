@@ -7,46 +7,67 @@
   const routeId = references?.trips?.[departure?.tripId].routeId;
   const routeData = references?.routes?.[routeId];
 
+  const predictedDepartureDate = epochToDate(departure.predictedDepartureTime);
+  const departureDate = epochToDate(departure.departureTime);
+
+  let [hoursC, minutesC, secondsC] = countdown(
+    predictedDepartureDate || departureDate
+  );
+
   const delayInMinutes =
     (departure?.predictedDepartureTime - departure?.departureTime) / 60;
 
-  function epochToDate(epochDate: number): Date {
+  function epochToDate(epochDate: number): Date | null {
+    if (epochDate === undefined) return null;
     let date = new Date(0);
     date.setUTCSeconds(epochDate);
     return date;
   }
 
-  function displayEpochTime(epochDate: number): string {
-    let date = new Date(0);
-    date.setUTCSeconds(epochDate);
+  function displayDate(date: Date): string {
     return date.toLocaleTimeString("hu", {
       hour: "2-digit",
       minute: "2-digit",
     });
   }
 
-  const minutesToDep = Math.floor(
-    (epochToDate(
-      departure?.predictedDepartureTime ??
-        departure?.departureTime ??
-        // FIXME this is not really a valid fallback
-        Date.now()
-    ).valueOf() -
-      Date.now()) /
-      60000
-  );
+  function countdown(date: Date): number[] {
+    const now = new Date().getTime();
+    const distance = date.valueOf() - now;
+
+    const hours = Math.floor(
+      (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    return [hours, minutes, seconds];
+  }
+
+  setInterval(() => {
+    [hoursC, minutesC, secondsC] = countdown(
+      predictedDepartureDate || departureDate
+    );
+  }, 1000);
+
+  const displayCountdown = ([h, m, s]: number[]): string => {
+    console.log([h, m, s]);
+    if (h > 0) return `${h}h ${m}`;
+    if (m > 10) return m.toString();
+    return `${m}:${s}`;
+  };
 </script>
 
 <div
-  class="w-full p-4 {minutesToDep > 1
+  class="w-full p-4 {hoursC > 0 || minutesC > 1
     ? ''
     : 'text-slate-500'}  bg-slate-100 flex justify-between gap-6"
 >
   <div>
-    <span>{displayEpochTime(departure?.departureTime)}</span>
+    <span>{displayDate(departureDate)}</span>
     {#if departure.predictedDepartureTime}
       <span class={delayInMinutes > 1 ? "red" : "green"}>
-        > {displayEpochTime(departure.predictedDepartureTime)}
+        > {displayDate(predictedDepartureDate)}
       </span>
       {#if delayInMinutes > 0.5}
         <span class="text-xs {delayInMinutes > 1 ? 'red' : 'green'}"
@@ -74,7 +95,7 @@
     {/if}
   </div>
   <div class="justify-center text-center flex flex-col">
-    <div>{minutesToDep.toString()}</div>
+    <div>{displayCountdown([hoursC, minutesC, secondsC])}</div>
     <div class="text-xs text-slate-700">perc múlva</div>
   </div>
 </div>
