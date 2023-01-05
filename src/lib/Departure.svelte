@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { components } from "../data/bkk-openapi";
+  import Countdown from "./Countdown.svelte";
 
   export let departure: components["schemas"]["TransitScheduleStopTime"] = {};
   export let references: components["schemas"]["OTPTransitReferences"] = {};
@@ -10,9 +11,7 @@
   const predictedDepartureDate = epochToDate(departure.predictedDepartureTime);
   const departureDate = epochToDate(departure.departureTime);
 
-  let [hoursC, minutesC, secondsC] = countdown(
-    predictedDepartureDate || departureDate
-  );
+  const countDownToDate = predictedDepartureDate ?? departureDate;
 
   const delayInMinutes =
     (departure?.predictedDepartureTime - departure?.departureTime) / 60;
@@ -30,39 +29,9 @@
       minute: "2-digit",
     });
   }
-
-  function countdown(date: Date): number[] {
-    const now = new Date().getTime();
-    const distance = date.valueOf() - now;
-
-    const hours = Math.floor(
-      (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-    return [hours, minutes, seconds];
-  }
-
-  setInterval(() => {
-    [hoursC, minutesC, secondsC] = countdown(
-      predictedDepartureDate || departureDate
-    );
-  }, 1000);
-
-  const displayCountdown = ([h, m, s]: number[]): string => {
-    console.log([h, m, s]);
-    if (h > 0) return `${h}h ${m}`;
-    if (m > 10) return m.toString();
-    return `${m}:${s}`;
-  };
 </script>
 
-<div
-  class="w-full p-4 {hoursC > 0 || minutesC > 1
-    ? ''
-    : 'text-slate-500'}  bg-slate-100 flex justify-between gap-6"
->
+<div class="w-full p-4 bg-slate-100 flex justify-between gap-6">
   <div>
     <span>{displayDate(departureDate)}</span>
     {#if departure.predictedDepartureTime}
@@ -95,7 +64,7 @@
     {/if}
   </div>
   <div class="justify-center text-center flex flex-col">
-    <div>{displayCountdown([hoursC, minutesC, secondsC])}</div>
+    <Countdown {countDownToDate} />
     <div class="text-xs text-slate-700">perc múlva</div>
   </div>
 </div>
