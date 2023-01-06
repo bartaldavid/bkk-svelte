@@ -65,12 +65,16 @@
         on:click={() => {
           stopParams = { ...stopParams, stopId: stop.id };
           getData();
-        }}>{stop.label}</button
+        }}>{stop.label}
+       <span class="text-sm text-gray-400">
+          {stop.type}
+        </span>
+        </button
       >
     {/each}
     <div class="flex gap-2">
       <button class="button-outline" on:click={() => { $editMode = true }}>Add stops</button>
-      <button class="button-outline" on:click={() => {$savedStops = defaultStops}}>Reset defaults</button>
+      <button class="button-outline" on:click={() => { $savedStops = defaultStops }}>Reset defaults</button>
     </div>
     <div class="items-center gap-2 flex">
       <button class="button-outline" on:click={getData}

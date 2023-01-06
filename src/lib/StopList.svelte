@@ -3,6 +3,7 @@
   import { savedStops, editMode } from "../data/stores";
   import MdFavoriteBorder from "svelte-icons/md/MdFavoriteBorder.svelte";
   import MdArrowBack from 'svelte-icons/md/MdArrowBack.svelte'
+    import { stringify } from "uuid";
 
   const stopsForLocationUrl =
     "https://futar.bkk.hu/api/query/v1/ws/otp/api/where/stops-for-location.json?";
@@ -35,6 +36,7 @@
         references = tripData?.references!;
         listOfNearbyStops = tripData?.list!;
         console.log(listOfNearbyStops);
+        console.log(references);
       })
       .catch((err) => console.log(err))
       .finally(() => (loading = false));
@@ -54,8 +56,8 @@
     );
   };
 
-  function saveStop(stopName: string, stopId: string) {
-    savedStops.update((prev) => [...prev, { label: stopName, id: [stopId] }]);
+  function saveStop(stopName: string, stopId: string, type: string, colors: string[]) {
+    savedStops.update((prev) => [...prev, { label: stopName, id: [stopId], type: type, colors: colors }]);
   }
 </script>
 
@@ -91,11 +93,13 @@
                   >{references.routes[routeid].shortName}
                 </span>
               {/each}
+
+              {nearbyStop.direction}
             </div>
             <!-- <div class="text-xs text-gray-500">{nearbyStop.id}</div> -->
           </div>
           <div class="flex flex-col w-8 self-center p-1">
-            <button on:click={() => saveStop(nearbyStop.name, nearbyStop.id)}>
+            <button on:click={() => saveStop(nearbyStop.name, nearbyStop.id, references.stops[nearbyStop.id].type, references.stops[nearbyStop.id].style.colors)}>
               <!-- TODO hover state -->
               <MdFavoriteBorder />
             </button>
