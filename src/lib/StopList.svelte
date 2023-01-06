@@ -3,7 +3,6 @@
   import { savedStops, editMode } from "../data/stores";
   import MdFavoriteBorder from "svelte-icons/md/MdFavoriteBorder.svelte";
   import MdArrowBack from 'svelte-icons/md/MdArrowBack.svelte'
-    import { stringify } from "uuid";
 
   const stopsForLocationUrl =
     "https://futar.bkk.hu/api/query/v1/ws/otp/api/where/stops-for-location.json?";
