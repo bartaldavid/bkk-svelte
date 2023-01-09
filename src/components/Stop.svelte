@@ -2,7 +2,7 @@
   import type { components } from "../data/bkk-openapi";
   import { savedStops, savedRouteRef } from "../data/stores";
 
-  import { MdFavoriteBorder, MdFavorite } from "svelte-icons/md";
+  import { MdFavoriteBorder, MdFavorite, MdArrowUpward } from "svelte-icons/md";
   import { prevent_default } from "svelte/internal";
   export let references: components["schemas"]["TransitReferences"] = {};
   export let stop: components["schemas"]["TransitStop"] = {};
@@ -29,7 +29,9 @@
 
 <div class="flex flex-row rounded border p-1">
   <div class="flex-1">
-    <div class="mb-1">{stop.name}</div>
+    <div class="flex-row">
+      <div class="mb-1">{stop.name}</div>
+    </div>
     <div class="flex flex-row flex-wrap gap-1">
       <!-- TODO it would be nicer if savedrouteref would be passed down as references.routes here -->
       {#if references.routes}
@@ -54,8 +56,12 @@
           {/if}
         {/each}
       {/if}
-
-      {stop.direction}
+      {#if stop.direction}
+        <span
+          style="transform: rotate({stop.direction + 'deg'});"
+          class="h-4 w-4 self-center"><MdArrowUpward /></span
+        >
+      {/if}
     </div>
     <!-- <div class="text-xs text-gray-500">{stop.id}</div> -->
   </div>

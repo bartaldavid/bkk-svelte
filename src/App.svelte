@@ -26,7 +26,6 @@
   let error = "";
   let data: components["schemas"]["TransitEntryWithReferencesTransitArrivalsAndDepartures"] =
     {};
-  // TODO make this a getdata(url,params, type) fn
   async function getData(): Promise<void> {
     loading = true;
     ({ loading, error, data } = await fetchData<
@@ -35,8 +34,8 @@
     references = data.references;
     departures = data.entry.stopTimes;
   }
-
-  setInterval(() => departures.length > 0 && getData(), 20000);
+  // FIXME this refreshes when nothing is selected
+  setInterval(() => (departures.length > 0 ? getData() : null), 20000);
 </script>
 
 <main class="flex flex-row flex-wrap justify-center gap-4">
