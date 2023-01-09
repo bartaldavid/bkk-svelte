@@ -1,14 +1,14 @@
 <script lang="ts">
   import { each } from "svelte/internal";
   import type { operations, components } from "./data/bkk-openapi";
-  import Departure from "./lib/Departure.svelte";
-  import StopList from "./lib/StopList.svelte";
+  import Departure from "./components/Departure.svelte";
+  import StopList from "./components/StopList.svelte";
   import { savedStops } from "./data/stores";
   import { editMode } from "./data/stores";
-    import defaultStops from "./data/defaultStops";
-
-  const stopDataUrl =
-    "https://futar.bkk.hu/api/query/v1/ws/otp/api/where/arrivals-and-departures-for-stop.json?";
+  import defaultStops from "./data/defaultStops";
+  import FetchTest from "./components/FetchTest.svelte";
+  import { fetchData } from "./hooks/fetch";
+  import { stopDataUrl } from "./data/api-links";
 
   let stopParams: operations["getArrivalsAndDeparturesForStop"]["parameters"]["query"] =
     {
@@ -23,85 +23,77 @@
   let references: components["schemas"]["OTPTransitReferences"] = {};
 
   let loading = false;
+  let error = "";
+  let data: components["schemas"]["TransitEntryWithReferencesTransitArrivalsAndDepartures"] =
+    {};
   // TODO make this a getdata(url,params, type) fn
-  function getData(): void {
+  async function getData(): Promise<void> {
     loading = true;
-    fetch(
-      // TODO find a better solution to this type issue
-      stopDataUrl + new URLSearchParams(stopParams as any).toString()
-    )
-      .then((response) => response.json())
-      .then(
-        (
-          d: components["schemas"]["ArrivalsAndDeparturesForStopOTPMethodResponse"]
-        ) => {
-          if (d.code !== 200) {
-            throw new Error(d.status);
-          }
-          return d.data;
-        }
-      )
-      .then((tripData) => {
-        references = tripData?.references;
-        departures = tripData?.entry?.stopTimes;
-      })
-      .catch((err) => console.log(err))
-      .finally(() => (loading = false));
+    ({ loading, error, data } = await fetchData<
+      components["schemas"]["ArrivalsAndDeparturesForStopOTPMethodResponse"]
+    >(stopDataUrl, stopParams));
+    references = data.references;
+    departures = data.entry.stopTimes;
   }
 
   setInterval(() => departures.length > 0 && getData(), 20000);
 </script>
 
-<main class="flex-row flex-wrap justify-center flex gap-4">
+<main class="flex flex-row flex-wrap justify-center gap-4">
   {#if $editMode}
-  <StopList />
-
+    <StopList />
   {:else}
-
-  <div class="flex flex-col gap-2 w-full md:w-72 mt-4">
-    {#each $savedStops as stop}
-      <button
-        class="p-2 bg-slate-100 rounded"
-        on:click={() => {
-          stopParams = { ...stopParams, stopId: stop.id };
-          getData();
-        }}>{stop.label}
-       <span class="text-sm text-gray-400">
-          {stop.type}
-        </span>
-        </button
-      >
-    {/each}
-    <div class="flex gap-2">
-      <button class="button-outline" on:click={() => { $editMode = true }}>Add stops</button>
-      <button class="button-outline" on:click={() => { $savedStops = defaultStops }}>Reset defaults</button>
+    <div class="mt-4 flex w-full flex-col gap-2 md:w-72">
+      {#each $savedStops as stop}
+        <button
+          class="rounded bg-slate-100 p-2"
+          on:click={() => {
+            stopParams = { ...stopParams, stopId: [stop.id] };
+            getData();
+          }}
+          >{stop.name}
+          <span class="text-sm text-gray-400">
+            {stop.type}
+          </span>
+        </button>
+      {/each}
+      <div class="flex gap-2">
+        <button
+          class="button-outline"
+          on:click={() => {
+            $editMode = true;
+          }}>Add stops</button
+        >
+        <button
+          class="button-outline"
+          on:click={() => {
+            $savedStops = defaultStops;
+          }}>Reset defaults</button
+        >
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="button-outline" on:click={getData}
+          >{loading ? "Loading..." : "Refresh"}</button
+        >
+        <button class="button-outline" on:click={() => (departures = [])}
+          >Clear</button
+        >
+      </div>
     </div>
-    <div class="items-center gap-2 flex">
-      <button class="button-outline" on:click={getData}
-        >{loading ? "Loading..." : "Refresh"}</button
-      >
-      <button
-        class="button-outline"
-        on:click={() => (departures = [])}>Clear</button
-      >
-
+    <!-- <FetchTest /> -->
+    <div
+      class="flex w-full flex-col gap-2 pt-4 md:h-screen md:w-72"
+      style="overflow: auto;"
+    >
+      {#each departures as departure (crypto.randomUUID())}
+        <Departure {departure} {references} />
+      {/each}
     </div>
-  </div>
-  <div
-    class="flex flex-col gap-2 w-full md:w-72 md:h-screen pt-4"
-    style="overflow: auto;"
-  >
-    {#each departures as departure (crypto.randomUUID())}
-      <Departure {departure} {references} />
-    {/each}
-  </div>
   {/if}
-
 </main>
-
 
 <style>
   .button-outline {
-    @apply border p-2 mt-4 rounded flex-1;
+    @apply mt-4 flex-1 rounded border p-2;
   }
 </style>
