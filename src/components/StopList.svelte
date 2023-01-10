@@ -56,7 +56,9 @@
       type="text"
       placeholder="Search for stops"
       bind:value={searchQuery}
-      on:keydown={(e) => e.key === "Enter" && getStops()}
+      on:keydown={(e) => {
+        searchQuery.length > 2 && getStops();
+      }}
       class="flex-1 bg-slate-200 outline-none"
     />
     <button on:click={getStops}>{loading ? "Loading..." : "Search"}</button>
@@ -64,7 +66,7 @@
   <!-- <button on:click={setCurrentLoc}>Set loc as target</button> -->
 
   <div class="flex flex-col gap-1">
-    {#if searchQuery === ""}
+    {#if searchQuery.length < 3}
       {#each $savedStops as savedStop}
         <Stop {references} stop={savedStop} />
       {/each}

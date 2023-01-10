@@ -34,8 +34,15 @@
     references = data.references;
     departures = data.entry.stopTimes;
   }
-  // FIXME this refreshes when nothing is selected
-  setInterval(() => (departures.length > 0 ? getData() : null), 20000);
+  setInterval(() => {
+    if (
+      departures.length > 0 &&
+      stopParams.stopId[0].length > 0 &&
+      !$editMode
+    ) {
+      getData();
+    }
+  }, 20000);
 </script>
 
 <main class="flex flex-row flex-wrap justify-center gap-4">
@@ -74,8 +81,12 @@
         <button class="button-outline" on:click={getData}
           >{loading ? "Loading..." : "Refresh"}</button
         >
-        <button class="button-outline" on:click={() => (departures = [])}
-          >Clear</button
+        <button
+          class="button-outline"
+          on:click={() => {
+            departures = [];
+            stopParams.stopId = [""];
+          }}>Clear</button
         >
       </div>
     </div>
