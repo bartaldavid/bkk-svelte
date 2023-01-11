@@ -14,6 +14,7 @@
     [key in components["schemas"]["TransitStop"]["type"]]?: IconBase;
   };
 
+  // TODO replace these with material icons from css
   export const typesToIconsMap: typeMap = {
     RAIL: MdDirectionsRailway,
     BUS: MdDirectionsBus,

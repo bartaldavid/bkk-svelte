@@ -34,14 +34,14 @@
     <div class="flex flex-row flex-wrap gap-1">
       <!-- TODO it would be nicer if savedrouteref would be passed down as references.routes here -->
       {#each stop?.routeIds || [] as routeid}
-        {#if $savedRouteRef[routeid]}
+        {#if $savedRouteRef?.[routeid]}
           <span
             class="rounded p-1 text-xs"
             style:color={"#" + $savedRouteRef[routeid].style.icon.textColor}
             style:background-color={"#" + $savedRouteRef[routeid].style.color}
             >{$savedRouteRef?.[routeid]?.shortName || ""}
           </span>
-        {:else if references.routes[routeid]}
+        {:else if references?.routes?.[routeid]}
           <span
             class="rounded p-1 text-xs"
             style:color={"#" + references.routes[routeid].style.icon.textColor}
@@ -49,6 +49,8 @@
               references.routes[routeid].style.color}
             >{references.routes[routeid].shortName}
           </span>
+        {:else}
+          No icons unfortunately
         {/if}
       {/each}
 

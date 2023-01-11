@@ -66,7 +66,7 @@
   <!-- <button on:click={setCurrentLoc}>Set loc as target</button> -->
 
   <div class="flex flex-col gap-1">
-    {#if searchQuery.length < 3}
+    {#if searchQuery.length < 3 && $savedStops}
       {#each $savedStops as savedStop}
         <Stop {references} stop={savedStop} />
       {/each}
