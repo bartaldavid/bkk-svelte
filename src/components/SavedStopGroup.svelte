@@ -9,14 +9,14 @@
   export let getStopData;
 </script>
 
-<div class="mb-2 flex flex-row">
+<div class="mb-1 flex flex-row rounded bg-slate-50 p-2">
   <div class="flex">
     <VehicleIcons vehicleType={groupType} />
   </div>
   <div class="flex flex-wrap gap-1">
     {#each groupItems as stop}
       <button
-        class="break-words rounded bg-slate-100 p-2 text-sm"
+        class="flex-1 break-words rounded bg-slate-100 p-2 text-sm"
         on:click={() => {
           $selectedStopID = stop.id;
           getStopData(stop.id);

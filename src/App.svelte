@@ -9,6 +9,7 @@
   import { fetchData } from "./hooks/fetch";
   import { stopDataUrl } from "./data/api-links";
   import SavedStopGroup from "./components/SavedStopGroup.svelte";
+  import { MdRefresh, MdAdd } from "svelte-icons/md";
 
   const defaultStopParams: operations["getArrivalsAndDeparturesForStop"]["parameters"]["query"] =
     {
@@ -63,26 +64,34 @@
       {#each Object.entries(groupSavedStops) as [groupType, groupItems]}
         <SavedStopGroup {groupType} {groupItems} {getStopData} />
       {/each}
-      <div class="flex gap-2">
+      <div class="flex gap-2 bg-slate-50 p-2">
         <button
-          class="button-outline"
+          class="button-outline flex-1 bg-white"
           on:click={() => {
             $editMode = true;
-          }}>Add stops</button
-        >
+          }}
+          ><span class="material-symbols-outlined align-bottom text-base">
+            add
+          </span><span> Add stop</span>
+        </button>
         <button
-          class="button-outline"
+          class="button-outline flex-1 bg-white text-red-600"
           on:click={() => {
             $savedStops = defaultStops;
-          }}>Reset stops</button
+          }}
+          ><span class="material-symbols-outlined mr-1 align-bottom text-base">
+            delete_forever
+          </span><span> Delete stops</span></button
         >
       </div>
       <div class="flex items-center gap-2">
         <button
           class="button-outline"
           on:click={() => getStopData($selectedStopID)}
-          >{loading ? "Loading..." : "Refresh"}</button
-        >
+          ><span class="material-symbols-outlined pr-1 align-bottom text-base">
+            refresh
+          </span>{loading ? "Loading..." : "Refresh"}
+        </button>
         <button
           class="button-outline"
           on:click={() => {
@@ -106,6 +115,6 @@
 
 <style>
   .button-outline {
-    @apply mt-4 flex-1 rounded border p-2;
+    @apply flex-1 rounded border p-2;
   }
 </style>
