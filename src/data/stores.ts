@@ -24,3 +24,5 @@ savedRouteRef.subscribe((value) =>
 );
 
 export const editMode = writable(false);
+export const expandedTripId = writable("");
+export const selectedStopID = writable("");

@@ -3,16 +3,15 @@
   import type { operations, components } from "./data/bkk-openapi";
   import Departure from "./components/Departure.svelte";
   import StopList from "./components/StopList.svelte";
-  import { savedStops } from "./data/stores";
-  import { editMode } from "./data/stores";
+  import { savedStops, editMode, selectedStopID } from "./data/stores";
   import defaultStops from "./data/defaultStops";
   import FetchTest from "./components/FetchTest.svelte";
   import { fetchData } from "./hooks/fetch";
   import { stopDataUrl } from "./data/api-links";
+  import SavedStopGroup from "./components/SavedStopGroup.svelte";
 
-  let stopParams: operations["getArrivalsAndDeparturesForStop"]["parameters"]["query"] =
+  const defaultStopParams: operations["getArrivalsAndDeparturesForStop"]["parameters"]["query"] =
     {
-      stopId: [""],
       onlyDepartures: true,
       limit: 10,
       minutesBefore: 0,
@@ -26,8 +25,11 @@
   let error = "";
   let data: components["schemas"]["TransitEntryWithReferencesTransitArrivalsAndDepartures"] =
     {};
-  async function getData(): Promise<void> {
+
+  // TODO stopID should be from a single source of truth
+  async function getStopData(stopId: string): Promise<void> {
     loading = true;
+    const stopParams = { ...defaultStopParams, stopId: [stopId] };
     ({ loading, error, data } = await fetchData<
       components["schemas"]["ArrivalsAndDeparturesForStopOTPMethodResponse"]
     >(stopDataUrl, stopParams));
@@ -35,14 +37,22 @@
     departures = data.entry.stopTimes;
   }
   setInterval(() => {
-    if (
-      departures.length > 0 &&
-      stopParams.stopId[0].length > 0 &&
-      !$editMode
-    ) {
-      getData();
+    if (departures.length > 0 && $selectedStopID && !$editMode) {
+      getStopData($selectedStopID);
     }
   }, 20000);
+
+  type savedStopGroup = {
+    [key in components["schemas"]["TransitStop"]["type"]]: components["schemas"]["TransitStop"][];
+  };
+
+  let groupSavedStops: savedStopGroup;
+  $: groupSavedStops = $savedStops.reduce((result, currentStop) => {
+    (result[currentStop.type] = result[currentStop.type] || []).push(
+      currentStop
+    );
+    return result;
+  }, {} as savedStopGroup);
 </script>
 
 <main class="flex flex-row flex-wrap justify-center gap-4">
@@ -50,18 +60,8 @@
     <StopList />
   {:else}
     <div class="mt-4 flex w-full flex-col gap-2 md:w-72">
-      {#each $savedStops as stop}
-        <button
-          class="rounded bg-slate-100 p-2"
-          on:click={() => {
-            stopParams = { ...stopParams, stopId: [stop.id] };
-            getData();
-          }}
-          >{stop.name}
-          <span class="text-sm text-gray-400">
-            {stop.type}
-          </span>
-        </button>
+      {#each Object.entries(groupSavedStops) as [groupType, groupItems]}
+        <SavedStopGroup {groupType} {groupItems} {getStopData} />
       {/each}
       <div class="flex gap-2">
         <button
@@ -74,18 +74,20 @@
           class="button-outline"
           on:click={() => {
             $savedStops = defaultStops;
-          }}>Reset defaults</button
+          }}>Reset stops</button
         >
       </div>
       <div class="flex items-center gap-2">
-        <button class="button-outline" on:click={getData}
+        <button
+          class="button-outline"
+          on:click={() => getStopData($selectedStopID)}
           >{loading ? "Loading..." : "Refresh"}</button
         >
         <button
           class="button-outline"
           on:click={() => {
             departures = [];
-            stopParams.stopId = [""];
+            $selectedStopID = "";
           }}>Clear</button
         >
       </div>

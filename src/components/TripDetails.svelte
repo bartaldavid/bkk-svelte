@@ -7,30 +7,25 @@
 </script>
 
 <div class="mt-2 flex flex-col text-sm">
-  {#each tripData.stopTimes as stopTime}
-    <div
-      class="flex flex-row {epochToDate(
+  {#if tripData?.stopTimes?.length > 0}
+    {#each tripData.stopTimes as stopTime}
+      {@const displayedTime =
         stopTime.predictedDepartureTime ??
-          stopTime.departureTime ??
-          stopTime.predictedArrivalTime ??
-          stopTime.arrivalTime
-      ) < new Date()
-        ? 'text-gray-500'
-        : ''}"
-    >
-      <span class="pr-2">
-        {displayDate(
-          epochToDate(
-            stopTime.predictedDepartureTime ??
-              stopTime.departureTime ??
-              stopTime.predictedArrivalTime ??
-              stopTime.arrivalTime
-          )
-        )}
-      </span>
-      <span>
-        {tripRef.stops[stopTime.stopId].name}
-      </span>
-    </div>
-  {/each}
+        stopTime.predictedArrivalTime ??
+        stopTime.departureTime ??
+        stopTime.arrivalTime}
+      <div
+        class="flex flex-row {epochToDate(displayedTime) < new Date()
+          ? 'text-gray-500'
+          : ''}"
+      >
+        <span class="pr-2">
+          {displayDate(epochToDate(displayedTime))}
+        </span>
+        <span>
+          {tripRef.stops[stopTime.stopId].name}
+        </span>
+      </div>
+    {/each}
+  {/if}
 </div>

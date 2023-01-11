@@ -5,10 +5,12 @@
   import Countdown from "./Countdown.svelte";
   import TripDetails from "./TripDetails.svelte";
   import { epochToDate, displayDate } from "../hooks/dateMagic";
+  import { expandedTripId } from "../data/stores";
+  import { onMount } from "svelte";
 
   export let departure: components["schemas"]["TransitScheduleStopTime"] = {};
   export let references: components["schemas"]["OTPTransitReferences"] = {};
-  let expanded = false;
+
   let tripParams: operations["getTripDetails"]["parameters"]["query"] = {
     tripId: departure.tripId,
     includeReferences: ["stops"],
@@ -34,17 +36,30 @@
   const delayInMinutes =
     (departure?.predictedDepartureTime - departure?.departureTime) / 60;
 
-  async function toggleDetails() {
-    if (expanded === false) {
+  onMount(async () => {
+    if ($expandedTripId === departure.tripId) {
       let response: tripDetailResponse = await fetchData<
         components["schemas"]["TripDetailsOTPMethodResponse"]
       >(tripDataUrl, tripParams);
       tripData = response.data.entry;
       tripRef = response.data.references;
-      console.log(tripData);
-      console.log(tripRef);
     }
-    expanded = !expanded;
+  });
+
+  // TODO migrating this to Svelte Query should solve refresh glitch
+  async function toggleDetails() {
+    if ($expandedTripId !== departure.tripId) {
+      let response: tripDetailResponse = await fetchData<
+        components["schemas"]["TripDetailsOTPMethodResponse"]
+      >(tripDataUrl, tripParams);
+      tripData = response.data.entry;
+      tripRef = response.data.references;
+      // console.log(tripData);
+      // console.log(tripRef);
+      $expandedTripId = departure.tripId;
+    } else {
+      $expandedTripId = "";
+    }
   }
 </script>
 
@@ -91,7 +106,7 @@
     </div>
   </div>
 
-  {#if expanded}
+  {#if $expandedTripId === departure.tripId}
     <TripDetails {tripRef} {tripData} />
   {/if}
 </div>

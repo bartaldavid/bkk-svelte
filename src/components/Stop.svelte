@@ -8,7 +8,6 @@
   export let stop: components["schemas"]["TransitStop"] = {};
   $: saved = $savedStops.some((savedStop) => savedStop.id == stop.id);
 
-  // TODO also save references for routes so that route icons can be displayed
   function toggleStop(stop: components["schemas"]["TransitStop"]) {
     if (!saved) {
       savedStops.update((prev) => [...prev, stop]);
