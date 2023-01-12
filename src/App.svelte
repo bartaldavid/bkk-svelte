@@ -58,18 +58,20 @@
   }, {} as savedStopGroup);
 </script>
 
-<main class="flex flex-row flex-wrap justify-center gap-4">
+<main
+  class="flex h-screen flex-row flex-wrap justify-center gap-4 dark:bg-slate-900"
+>
   {#if $editMode}
     <StopList />
   {:else}
-    <div class="mt-4 flex w-full flex-col gap-2 md:w-72">
+    <div class="mt-4 ml-1 mr-1 flex w-full flex-col gap-2 sm:w-72">
       {#each Object.entries(groupSavedStops) as [groupType, groupItems]}
         <SavedStopGroup {groupType} {groupItems} {getStopData} />
       {/each}
 
-      <div class="flex gap-2 bg-slate-50 p-2">
+      <div class="flex gap-2 rounded bg-slate-50 p-2 dark:bg-slate-700">
         <button
-          class="button-outline flex-1 bg-white"
+          class="button-outline flex-1 bg-white dark:border-none dark:bg-slate-800 dark:text-white"
           on:click={() => {
             $editMode = true;
           }}
@@ -79,7 +81,7 @@
         </button>
 
         <button
-          class="button-outline flex-1 bg-white text-red-600"
+          class="button-outline flex-1 bg-white text-red-600 dark:border-none dark:bg-slate-800 dark:text-red-400"
           on:click={() => {
             $savedStops = defaultStops;
           }}
@@ -91,14 +93,14 @@
 
       <div class="flex items-center gap-2">
         <button
-          class="button-outline"
+          class="button-outline dark:text-slate-100"
           on:click={() => getStopData($selectedStopID)}
           ><span class="material-symbols-outlined pr-1 align-bottom text-base">
             refresh
           </span>{loading ? "Loading..." : "Refresh"}
         </button>
         <button
-          class="button-outline"
+          class="button-outline dark:text-slate-100"
           on:click={() => {
             departures = [];
             $selectedStopID = "";
@@ -107,9 +109,7 @@
       </div>
     </div>
     <!-- <FetchTest /> -->
-    <div
-      class="flex w-full flex-col gap-2 overflow-auto pt-4 md:h-screen md:w-72"
-    >
+    <div class="flex h-screen w-full flex-col gap-2 overflow-auto pt-4 sm:w-72">
       {#each departures as departure (crypto.randomUUID())}
         <Departure {departure} {references} />
       {/each}

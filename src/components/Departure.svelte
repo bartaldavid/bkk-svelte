@@ -25,24 +25,27 @@
   let tripRef: components["schemas"]["TransitReferences"];
   let tripData: components["schemas"]["TransitTripDetailsOTP"];
 
-  const routeId = references?.trips?.[departure?.tripId].routeId;
-  const routeData = references?.routes?.[routeId];
+  const routeId = references?.trips?.[departure?.tripId!]?.routeId;
+  const routeData = references?.routes?.[routeId!];
 
   const predictedDepartureDate = epochToDate(departure.predictedDepartureTime);
   const departureDate = epochToDate(departure.departureTime);
 
-  const countDownToDate = predictedDepartureDate ?? departureDate;
+  // FIXME not a valid fallback
+  const countDownToDate = predictedDepartureDate ?? departureDate ?? new Date();
 
   const delayInMinutes =
-    (departure?.predictedDepartureTime - departure?.departureTime) / 60;
+    departure.predictedDepartureTime && departure.departureTime
+      ? (departure?.predictedDepartureTime - departure?.departureTime) / 60
+      : 0;
 
   onMount(async () => {
     if ($expandedTripId === departure.tripId) {
       let response: tripDetailResponse = await fetchData<
         components["schemas"]["TripDetailsOTPMethodResponse"]
-      >(tripDataUrl, tripParams);
-      tripData = response.data.entry;
-      tripRef = response.data.references;
+      >(tripDataUrl, tripParams!);
+      tripData = response.data.entry!;
+      tripRef = response.data.references!;
     }
   });
 
@@ -51,12 +54,12 @@
     if ($expandedTripId !== departure.tripId) {
       let response: tripDetailResponse = await fetchData<
         components["schemas"]["TripDetailsOTPMethodResponse"]
-      >(tripDataUrl, tripParams);
-      tripData = response.data.entry;
-      tripRef = response.data.references;
+      >(tripDataUrl, tripParams!);
+      tripData = response.data.entry!;
+      tripRef = response.data.references!;
       // console.log(tripData);
       // console.log(tripRef);
-      $expandedTripId = departure.tripId;
+      $expandedTripId = departure.tripId ?? "";
     } else {
       $expandedTripId = "";
     }
@@ -64,7 +67,7 @@
 </script>
 
 <div
-  class="flex w-full flex-col  bg-slate-100 p-4 hover:cursor-pointer"
+  class="flex w-full flex-col  rounded bg-slate-100 p-4 hover:cursor-pointer dark:bg-slate-700 dark:text-slate-50"
   on:click={toggleDetails}
   on:keypress={() => {}}
 >
@@ -72,12 +75,18 @@
     <div>
       <span>{displayDate(departureDate)}</span>
       {#if departure.predictedDepartureTime}
-        <span class={delayInMinutes > 1 ? "red" : "green"}>
+        <span
+          class={delayInMinutes > 1
+            ? "text-red-500 dark:text-red-400"
+            : "green"}
+        >
           > {displayDate(predictedDepartureDate)}
         </span>
         {#if delayInMinutes > 0.5}
-          <span class="text-xs {delayInMinutes > 1 ? 'red' : 'green'}"
-            >(+{delayInMinutes.toFixed(1)})</span
+          <span
+            class="text-xs {delayInMinutes > 1
+              ? 'text-red-500 dark:text-red-400'
+              : 'green'}">(+{delayInMinutes.toFixed(1)})</span
           >
         {/if}
       {/if}
@@ -94,15 +103,15 @@
       </div>
       {#if departure.alertIds}
         {#each departure.alertIds as alertId}
-          <div class="mt-2 text-xs text-red-500">
-            {references?.alerts?.[alertId]?.header.someTranslation}
+          <div class="mt-2 text-xs text-red-500 dark:text-red-400">
+            {references?.alerts?.[alertId]?.header?.someTranslation}
           </div>
         {/each}
       {/if}
     </div>
     <div class="flex flex-col justify-center text-center">
       <Countdown {countDownToDate} />
-      <div class="text-xs text-slate-700">perc múlva</div>
+      <div class="text-xs text-slate-700 dark:text-slate-100">perc múlva</div>
     </div>
   </div>
 
@@ -112,9 +121,6 @@
 </div>
 
 <style>
-  .red {
-    @apply text-red-500;
-  }
   .green {
     @apply text-green-500;
   }

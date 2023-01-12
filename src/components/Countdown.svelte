@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let countDownToDate = new Date();
+  export let countDownToDate: Date;
 
   let [hoursC, minutesC, secondsC] = countdown(countDownToDate);
 
@@ -25,7 +25,10 @@
     if (h > 0) return `${h}h ${m}`;
     if (m > 10) return m.toString();
     if (m < 0) return `${s} s`;
-    return `${m}:${s.toLocaleString('hu', {minimumIntegerDigits: 2, useGrouping: false})}`;
+    return `${m}:${s.toLocaleString("hu", {
+      minimumIntegerDigits: 2,
+      useGrouping: false,
+    })}`;
   };
 </script>
 
