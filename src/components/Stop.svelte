@@ -24,10 +24,12 @@
   }
 </script>
 
-<div class="flex flex-row rounded border p-1">
+<div
+  class="flex flex-row rounded border p-1 dark:border-none dark:bg-slate-700 dark:p-2"
+>
   <div class="flex-1">
     <div class="flex-row">
-      <div class="mb-1">{stop.name}</div>
+      <div class="mb-1 dark:text-slate-50">{stop.name}</div>
     </div>
     <div class="flex flex-row flex-wrap gap-1">
       <!-- TODO it would be nicer if savedrouteref would be passed down as references.routes here -->
@@ -56,7 +58,7 @@
       {#if stop.direction}
         <span class="h-3 w-3 align-middle"
           ><span
-            class="material-symbols-outlined"
+            class="material-symbols-outlined dark:text-slate-50"
             style="transform: rotate({stop.direction + 'deg'});"
             >arrow_upward</span
           ></span
@@ -68,7 +70,7 @@
   <div class="flex w-8 flex-col self-center p-1">
     <button on:click={() => toggleStop(stop)}>
       <span
-        class="material-symbols-outlined"
+        class="material-symbols-outlined dark:text-slate-100"
         style:font-variation-settings={saved ? "'FILL' 1" : ""}>favorite</span
       >
     </button>

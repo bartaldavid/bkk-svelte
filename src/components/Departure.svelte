@@ -14,6 +14,7 @@
   let tripParams: operations["getTripDetails"]["parameters"]["query"] = {
     tripId: departure.tripId,
     includeReferences: ["stops"],
+    version: "4",
   };
 
   type tripDetailResponse = {

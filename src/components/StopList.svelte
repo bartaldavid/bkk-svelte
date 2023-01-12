@@ -43,14 +43,15 @@
   };
 </script>
 
-<div class="mt-4 flex w-full flex-col md:w-72">
-  <div class="flex flex-row rounded bg-slate-200 p-2">
+<div class="m-1 mt-4 flex w-full flex-col md:w-72">
+  <div class="mb-2 flex flex-row rounded bg-slate-200 p-2 dark:bg-slate-600">
     <button
       on:click={() => {
         $editMode = false;
       }}
-      class="w-6 pr-1"
-      ><span class="material-symbols-outlined inline-flex pr-2 align-middle"
+      class="w-6 pr-2"
+      ><span
+        class="material-symbols-outlined inline-flex pr-2 align-middle dark:text-slate-100"
         >arrow_back</span
       ></button
     >
@@ -62,9 +63,11 @@
         searchQuery.length > 2 && getStops();
       }}
       autofocus
-      class="flex-1 bg-slate-200 outline-none"
+      class="flex-1 bg-slate-200 outline-none dark:bg-slate-600 dark:text-slate-100"
     />
-    <button on:click={getStops}>{loading ? "Loading..." : "Search"}</button>
+    <button on:click={getStops} class="dark:text-slate-100"
+      >{loading ? "Loading..." : "Search"}</button
+    >
   </div>
   <!-- <button on:click={setCurrentLoc}>Set loc as target</button> -->
 
