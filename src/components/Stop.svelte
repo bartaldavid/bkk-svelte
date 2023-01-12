@@ -1,8 +1,6 @@
 <script lang="ts">
   import type { components } from "../data/bkk-openapi";
   import { savedStops, savedRouteRef } from "../data/stores";
-
-  import { MdFavoriteBorder, MdFavorite, MdArrowUpward } from "svelte-icons/md";
   import { prevent_default } from "svelte/internal";
   export let references: components["schemas"]["TransitReferences"] = {};
   export let stop: components["schemas"]["TransitStop"] = {};
@@ -14,8 +12,8 @@
       let routeRefForStop: {
         [key: string]: components["schemas"]["TransitRoute"] | undefined;
       } = {};
-      stop.routeIds.forEach((routeId) => {
-        routeRefForStop[routeId] = references.routes[routeId];
+      stop.routeIds?.forEach((routeId) => {
+        routeRefForStop[routeId] = references.routes?.[routeId];
       });
       savedRouteRef.update((prev) => {
         return { ...prev, ...routeRefForStop };
@@ -37,17 +35,18 @@
         {#if $savedRouteRef?.[routeid]}
           <span
             class="rounded p-1 text-xs"
-            style:color={"#" + $savedRouteRef[routeid].style.icon.textColor}
-            style:background-color={"#" + $savedRouteRef[routeid].style.color}
+            style:color={"#" + $savedRouteRef[routeid]?.style?.icon?.textColor}
+            style:background-color={"#" + $savedRouteRef[routeid]?.style?.color}
             >{$savedRouteRef?.[routeid]?.shortName || ""}
           </span>
         {:else if references?.routes?.[routeid]}
           <span
             class="rounded p-1 text-xs"
-            style:color={"#" + references.routes[routeid].style.icon.textColor}
+            style:color={"#" +
+              references?.routes[routeid]?.style?.icon?.textColor}
             style:background-color={"#" +
-              references.routes[routeid].style.color}
-            >{references.routes[routeid].shortName}
+              references?.routes[routeid]?.style?.color}
+            >{references.routes[routeid]?.shortName}
           </span>
         {:else}
           No icons unfortunately
@@ -55,9 +54,12 @@
       {/each}
 
       {#if stop.direction}
-        <span
-          style="transform: rotate({stop.direction + 'deg'});"
-          class="h-4 w-4 self-center"><MdArrowUpward /></span
+        <span class="h-3 w-3 align-middle"
+          ><span
+            class="material-symbols-outlined"
+            style="transform: rotate({stop.direction + 'deg'});"
+            >arrow_upward</span
+          ></span
         >
       {/if}
     </div>
@@ -65,11 +67,10 @@
   </div>
   <div class="flex w-8 flex-col self-center p-1">
     <button on:click={() => toggleStop(stop)}>
-      {#if saved}
-        <MdFavorite />
-      {:else}
-        <MdFavoriteBorder />
-      {/if}
+      <span
+        class="material-symbols-outlined"
+        style:font-variation-settings={saved ? "'FILL' 1" : ""}>favorite</span
+      >
     </button>
   </div>
 </div>

@@ -9,10 +9,10 @@
   import { fetchData } from "./hooks/fetch";
   import { stopDataUrl } from "./data/api-links";
   import SavedStopGroup from "./components/SavedStopGroup.svelte";
-  import { MdRefresh, MdAdd } from "svelte-icons/md";
 
   const defaultStopParams: operations["getArrivalsAndDeparturesForStop"]["parameters"]["query"] =
     {
+      version: "4",
       onlyDepartures: true,
       limit: 10,
       minutesBefore: 0,
@@ -34,8 +34,8 @@
     ({ loading, error, data } = await fetchData<
       components["schemas"]["ArrivalsAndDeparturesForStopOTPMethodResponse"]
     >(stopDataUrl, stopParams));
-    references = data.references;
-    departures = data.entry.stopTimes;
+    references = data.references!;
+    departures = data?.entry?.stopTimes!;
   }
   setInterval(() => {
     if (departures.length > 0 && $selectedStopID && !$editMode) {
@@ -44,14 +44,16 @@
   }, 20000);
 
   type savedStopGroup = {
-    [key in components["schemas"]["TransitStop"]["type"]]: components["schemas"]["TransitStop"][];
+    [key in components["schemas"]["TransitStop"]["type"] as string]: components["schemas"]["TransitStop"][];
   };
 
   let groupSavedStops: savedStopGroup;
   $: groupSavedStops = $savedStops.reduce((result, currentStop) => {
-    (result[currentStop.type] = result[currentStop.type] || []).push(
-      currentStop
-    );
+    if (currentStop.type) {
+      (result[currentStop.type] = result[currentStop.type] || []).push(
+        currentStop
+      );
+    }
     return result;
   }, {} as savedStopGroup);
 </script>
@@ -64,6 +66,7 @@
       {#each Object.entries(groupSavedStops) as [groupType, groupItems]}
         <SavedStopGroup {groupType} {groupItems} {getStopData} />
       {/each}
+
       <div class="flex gap-2 bg-slate-50 p-2">
         <button
           class="button-outline flex-1 bg-white"
@@ -74,6 +77,7 @@
             add
           </span><span> Add stop</span>
         </button>
+
         <button
           class="button-outline flex-1 bg-white text-red-600"
           on:click={() => {
@@ -84,6 +88,7 @@
           </span><span> Delete stops</span></button
         >
       </div>
+
       <div class="flex items-center gap-2">
         <button
           class="button-outline"
@@ -103,8 +108,7 @@
     </div>
     <!-- <FetchTest /> -->
     <div
-      class="flex w-full flex-col gap-2 pt-4 md:h-screen md:w-72"
-      style="overflow: auto;"
+      class="flex w-full flex-col gap-2 overflow-auto pt-4 md:h-screen md:w-72"
     >
       {#each departures as departure (crypto.randomUUID())}
         <Departure {departure} {references} />

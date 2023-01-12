@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { components, operations } from "../data/bkk-openapi";
   import { savedStops, editMode } from "../data/stores";
-  import MdArrowBack from "svelte-icons/md/MdArrowBack.svelte";
   import Stop from "./Stop.svelte";
   import { fetchData } from "../hooks/fetch";
   import { stopsForLocationUrl } from "../data/api-links";
@@ -25,8 +24,8 @@
     ({ loading, error, data } = await fetchData<
       components["schemas"]["StopsForLocationResponse"]
     >(stopsForLocationUrl, stopsForLocationParams));
-    references = data.references;
-    listOfNearbyStops = data.list;
+    references = data.references!;
+    listOfNearbyStops = data.list!;
   }
 
   const setCurrentLoc = () => {
@@ -50,7 +49,10 @@
       on:click={() => {
         $editMode = false;
       }}
-      class="w-6 pr-1"><MdArrowBack /></button
+      class="w-6 pr-1"
+      ><span class="material-symbols-outlined inline-flex pr-2 align-middle"
+        >arrow_back</span
+      ></button
     >
     <input
       type="text"
@@ -59,6 +61,7 @@
       on:keydown={(e) => {
         searchQuery.length > 2 && getStops();
       }}
+      autofocus
       class="flex-1 bg-slate-200 outline-none"
     />
     <button on:click={getStops}>{loading ? "Loading..." : "Search"}</button>

@@ -14,7 +14,7 @@
     "allowJs": true,
     "checkJs": true,
     "isolatedModules": true,
-    // "strict": true,
+    "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false
   },

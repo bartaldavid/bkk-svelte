@@ -6,7 +6,7 @@
   // FIXME this probably should be strongly typed
   export let groupType: string;
   export let groupItems: components["schemas"]["TransitStop"][];
-  export let getStopData;
+  export let getStopData: (stopId: string) => void;
 </script>
 
 <div class="mb-1 flex flex-row rounded bg-slate-50 p-2">
@@ -18,8 +18,8 @@
       <button
         class="flex-1 break-words rounded bg-slate-100 p-2 text-sm"
         on:click={() => {
-          $selectedStopID = stop.id;
-          getStopData(stop.id);
+          $selectedStopID = stop.id ?? "";
+          getStopData(stop.id ?? "");
         }}
         >{stop.name}
       </button>
