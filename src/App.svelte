@@ -58,7 +58,9 @@
   }, {} as savedStopGroup);
 </script>
 
-<main class="flex h-screen flex-row flex-wrap justify-center gap-4 ">
+<main
+  class="flex h-screen flex-row flex-wrap justify-center gap-4 dark:bg-slate-900"
+>
   {#if $editMode}
     <StopList />
   {:else}
