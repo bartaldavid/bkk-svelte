@@ -2,10 +2,9 @@
   import { each } from "svelte/internal";
   import type { operations, components } from "./data/bkk-openapi";
   import Departure from "./components/Departure.svelte";
-  import StopList from "./components/StopList.svelte";
+  import SearchView from "./components/SearchView.svelte";
   import { savedStops, editMode, selectedStopID } from "./data/stores";
   import defaultStops from "./data/defaultStops";
-  import FetchTest from "./components/FetchTest.svelte";
   import { fetchData } from "./hooks/fetch";
   import { stopDataUrl } from "./data/api-links";
   import SavedStopGroup from "./components/SavedStopGroup.svelte";
@@ -27,7 +26,7 @@
   let data: components["schemas"]["TransitEntryWithReferencesTransitArrivalsAndDepartures"] =
     {};
 
-  // TODO stopID should be from a single source of truth
+  // TODO stopID should probably be from a single source of truth
   async function getStopData(stopId: string): Promise<void> {
     loading = true;
     const stopParams = { ...defaultStopParams, stopId: [stopId] };
@@ -47,8 +46,8 @@
     [key in components["schemas"]["TransitStop"]["type"] as string]: components["schemas"]["TransitStop"][];
   };
 
-  let groupSavedStops: savedStopGroup;
-  $: groupSavedStops = $savedStops.reduce((result, currentStop) => {
+  let savedStopGroups: savedStopGroup;
+  $: savedStopGroups = $savedStops.reduce((result, currentStop) => {
     if (currentStop.type) {
       (result[currentStop.type] = result[currentStop.type] || []).push(
         currentStop
@@ -58,11 +57,9 @@
   }, {} as savedStopGroup);
 </script>
 
-<main
-  class="flex h-screen flex-row flex-wrap justify-center gap-4 dark:bg-slate-900"
->
+<main class="flex h-screen flex-row flex-wrap justify-center gap-4">
   {#if $editMode}
-    <StopList />
+    <SearchView />
   {:else}
     <div
       class="mt-4 ml-1 mr-1 flex w-full flex-col {$savedStops.length === 0 &&
@@ -70,7 +67,7 @@
         ? 'justify-center'
         : ''} gap-2 sm:w-72"
     >
-      {#each Object.entries(groupSavedStops) as [groupType, groupItems]}
+      {#each Object.entries(savedStopGroups) as [groupType, groupItems]}
         <SavedStopGroup {groupType} {groupItems} {getStopData} />
       {:else}
         <div class="dark:text-slate-50 text-4xl text-center p-4 pb-0">
@@ -82,13 +79,13 @@
       {/each}
 
       <div
-        class="flex gap-2 rounded bg-slate-50 p-2 dark:bg-slate-700 {$savedStops.length ===
+        class="flex gap-2 rounded bg-slate-50 p-2 dark:bg-slate-800 {$savedStops.length ===
           0 && departures.length === 0
           ? 'w-52 self-center'
           : ''}"
       >
         <button
-          class="button-outline bg-white dark:border-none dark:bg-slate-800 dark:text-white"
+          class="button-outline bg-white dark:border-none dark:bg-slate-700 dark:text-white"
           on:click={() => {
             $editMode = true;
           }}
@@ -99,7 +96,7 @@
 
         {#if $savedStops.length > 0}
           <button
-            class="button-outline bg-white text-red-600 dark:border-none dark:bg-slate-800 dark:text-red-400"
+            class="button-outline bg-white text-red-500 dark:border-none dark:bg-slate-700 dark:text-red-400"
             on:click={() => {
               $savedStops = defaultStops;
             }}
@@ -112,7 +109,7 @@
         {/if}
       </div>
     </div>
-    <!-- <FetchTest /> -->
+
     {#if departures.length > 0}
       <div
         class="flex h-screen w-full flex-col gap-2 pt-4 sm:w-72 sm:overflow-auto"
@@ -135,6 +132,7 @@
             }}>Clear</button
           >
         </div>
+
         {#each departures as departure (crypto.randomUUID())}
           <Departure {departure} {references} />
         {/each}

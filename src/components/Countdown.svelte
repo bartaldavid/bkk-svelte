@@ -20,8 +20,7 @@
     [hoursC, minutesC, secondsC] = countdown(countDownToDate);
   }, 1000);
 
-  const displayCountdown = ([h, m, s]: number[]): string => {
-    // console.log([h, m, s]);
+  function displayCountdown([h, m, s]: number[]): string {
     if (h > 0) return `${h}h ${m}`;
     if (m > 10) return m.toString();
     if (m < 0) return `${s} s`;
@@ -29,7 +28,7 @@
       minimumIntegerDigits: 2,
       useGrouping: false,
     })}`;
-  };
+  }
 </script>
 
 <div>{displayCountdown([hoursC, minutesC, secondsC])}</div>

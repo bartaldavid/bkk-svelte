@@ -18,7 +18,6 @@ export async function fetchData<ResponseType extends baseResponse>(
   await fetch(url + new URLSearchParams(params as any))
     .then((response) => response.json())
     .then((d: ResponseType) => {
-      console.log(d);
       if (d.code !== 200) {
         throw new Error(d.status);
       }

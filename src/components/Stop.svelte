@@ -25,34 +25,22 @@
 </script>
 
 <div
-  class="flex flex-row rounded border p-1 dark:border-none dark:bg-slate-700 dark:p-2"
+  class="flex flex-row rounded border p-1 dark:border-none dark:bg-slate-800 dark:p-2"
 >
   <div class="flex-1">
     <div class="flex-row">
       <div class="mb-1 dark:text-slate-50">{stop.name}</div>
     </div>
-    <div class="flex flex-row flex-wrap gap-1">
-      <!-- TODO it would be nicer if savedrouteref would be passed down as references.routes here -->
+    <div class="flex flex-row flex-wrap gap-1 ">
       {#each stop?.routeIds || [] as routeid}
-        {#if $savedRouteRef?.[routeid]}
-          <span
-            class="rounded p-1 text-xs"
-            style:color={"#" + $savedRouteRef[routeid]?.style?.icon?.textColor}
-            style:background-color={"#" + $savedRouteRef[routeid]?.style?.color}
-            >{$savedRouteRef?.[routeid]?.shortName || ""}
-          </span>
-        {:else if references?.routes?.[routeid]}
-          <span
-            class="rounded p-1 text-xs"
-            style:color={"#" +
-              references?.routes[routeid]?.style?.icon?.textColor}
-            style:background-color={"#" +
-              references?.routes[routeid]?.style?.color}
-            >{references.routes[routeid]?.shortName}
-          </span>
-        {:else}
-          No icons unfortunately
-        {/if}
+        {@const routeRef =
+          $savedRouteRef?.[routeid] ?? references?.routes?.[routeid]}
+        <span
+          class="rounded p-1 text-xs"
+          style:color={"#" + routeRef?.style?.icon?.textColor}
+          style:background-color={"#" + routeRef?.style?.color}
+          >{routeRef?.shortName || ""}
+        </span>
       {/each}
 
       {#if stop.direction}

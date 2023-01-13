@@ -1,5 +1,4 @@
 <script lang="ts">
-  import {} from "os";
   import type { components } from "../data/bkk-openapi";
 
   export let vehicleType: string;

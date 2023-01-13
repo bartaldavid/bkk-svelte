@@ -58,8 +58,6 @@
       >(tripDataUrl, tripParams!);
       tripData = response.data.entry!;
       tripRef = response.data.references!;
-      // console.log(tripData);
-      // console.log(tripRef);
       $expandedTripId = departure.tripId ?? "";
     } else {
       $expandedTripId = "";
@@ -68,7 +66,7 @@
 </script>
 
 <div
-  class="flex w-full flex-col  rounded bg-slate-100 p-4 hover:cursor-pointer dark:bg-slate-700 dark:text-slate-50"
+  class="flex w-full flex-col  rounded bg-slate-100 p-4 hover:cursor-pointer dark:bg-slate-800 dark:text-slate-50"
   on:click={toggleDetails}
   on:keypress={() => {}}
 >
@@ -79,7 +77,7 @@
         <span
           class={delayInMinutes > 1
             ? "text-red-500 dark:text-red-400"
-            : "green"}
+            : "text-green-500 dark:text-green-400"}
         >
           > {displayDate(predictedDepartureDate)}
         </span>
@@ -87,7 +85,8 @@
           <span
             class="text-xs {delayInMinutes > 1
               ? 'text-red-500 dark:text-red-400'
-              : 'green'}">(+{delayInMinutes.toFixed(1)})</span
+              : 'text-green-500 dark:text-green-400'}"
+            >(+{delayInMinutes.toFixed(1)})</span
           >
         {/if}
       {/if}
@@ -120,9 +119,3 @@
     <TripDetails {tripRef} {tripData} />
   {/if}
 </div>
-
-<style>
-  .green {
-    @apply text-green-500;
-  }
-</style>

@@ -5,7 +5,7 @@ import defaultStops from "./defaultStops";
 const STOPS_LSKEY = "bkk.stops";
 const ROUTE_REF_LSKEY = "bkk.reference";
 
-const storedStops = JSON.parse(localStorage.getItem(STOPS_LSKEY));
+const storedStops = JSON.parse(localStorage.getItem(STOPS_LSKEY) ?? "{}");
 export const savedStops = writable<components["schemas"]["TransitStop"][]>(
   storedStops || defaultStops
 );
@@ -14,7 +14,9 @@ savedStops.subscribe((value) =>
   localStorage.setItem(STOPS_LSKEY, JSON.stringify(value))
 );
 
-const storedRouteRef = JSON.parse(localStorage.getItem(ROUTE_REF_LSKEY));
+const storedRouteRef = JSON.parse(
+  localStorage.getItem(ROUTE_REF_LSKEY) ?? "{}"
+);
 export const savedRouteRef = writable<{
   [key: string]: components["schemas"]["TransitRoute"] | undefined;
 }>(storedRouteRef);
