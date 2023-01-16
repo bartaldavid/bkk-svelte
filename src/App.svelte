@@ -4,10 +4,10 @@
   import Departure from "./components/Departure.svelte";
   import SearchView from "./components/SearchView.svelte";
   import { savedStops, editMode, selectedStopID } from "./data/stores";
-  import defaultStops from "./data/defaultStops";
   import { fetchData } from "./hooks/fetch";
   import { stopDataUrl } from "./data/api-links";
   import SavedStopGroup from "./components/SavedStopGroup.svelte";
+  import FirebaseUi from "./components/FirebaseUI.svelte";
 
   const defaultStopParams: operations["getArrivalsAndDeparturesForStop"]["parameters"]["query"] =
     {
@@ -76,6 +76,7 @@
         <div class="dark:text-slate-200 text-center pb-10">
           Add stops to get started
         </div>
+        <FirebaseUi />
       {/each}
 
       <div
@@ -98,7 +99,7 @@
           <button
             class="button-outline bg-white text-red-500 dark:border-none dark:bg-slate-700 dark:text-red-400"
             on:click={() => {
-              $savedStops = defaultStops;
+              $savedStops = [];
             }}
             ><span
               class="material-symbols-outlined mr-1 align-bottom text-base"

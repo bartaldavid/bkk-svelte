@@ -1,23 +1,22 @@
 <script lang="ts">
   import type { components } from "../data/bkk-openapi";
-  import { savedStops, savedRouteRef } from "../data/stores";
+  import { savedStops, type savedStop } from "../data/stores";
   import { prevent_default } from "svelte/internal";
+
   export let references: components["schemas"]["TransitReferences"] = {};
-  export let stop: components["schemas"]["TransitStop"] = {};
+  export let stop: savedStop = {};
   $: saved = $savedStops.some((savedStop) => savedStop.id == stop.id);
 
   function toggleStop(stop: components["schemas"]["TransitStop"]) {
     if (!saved) {
-      savedStops.update((prev) => [...prev, stop]);
       let routeRefForStop: {
         [key: string]: components["schemas"]["TransitRoute"] | undefined;
       } = {};
       stop.routeIds?.forEach((routeId) => {
         routeRefForStop[routeId] = references.routes?.[routeId];
       });
-      savedRouteRef.update((prev) => {
-        return { ...prev, ...routeRefForStop };
-      });
+      const stopToSave: savedStop = { ...stop, routeRef: routeRefForStop };
+      savedStops.update((prev) => [...prev, stopToSave]);
     } else {
       savedStops.update((prev) => prev.filter((e) => e.id !== stop.id));
     }
@@ -34,7 +33,7 @@
     <div class="flex flex-row flex-wrap gap-1 ">
       {#each stop?.routeIds || [] as routeid}
         {@const routeRef =
-          $savedRouteRef?.[routeid] ?? references?.routes?.[routeid]}
+          stop?.routeRef?.[routeid] ?? references?.routes?.[routeid]}
         <span
           class="rounded p-1 text-xs"
           style:color={"#" + routeRef?.style?.icon?.textColor}
