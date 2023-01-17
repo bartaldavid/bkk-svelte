@@ -3,8 +3,13 @@
   import type { operations, components } from "./data/bkk-openapi";
   import Departure from "./components/Departure.svelte";
   import SearchView from "./components/SearchView.svelte";
-  import { savedStops, editMode, selectedStopID } from "./data/stores";
-  import { fetchData } from "./hooks/fetch";
+  import {
+    savedStops,
+    editMode,
+    selectedStopID,
+    type savedStop,
+  } from "./data/stores";
+  import { fetchData } from "./util/fetch";
   import { stopDataUrl } from "./data/api-links";
   import SavedStopGroup from "./components/SavedStopGroup.svelte";
   import FirebaseUi from "./components/FirebaseUI.svelte";
@@ -43,7 +48,7 @@
   }, 20000);
 
   type savedStopGroup = {
-    [key in components["schemas"]["TransitStop"]["type"] as string]: components["schemas"]["TransitStop"][];
+    [key in components["schemas"]["TransitStop"]["type"] as string]: savedStop[];
   };
 
   let savedStopGroups: savedStopGroup;
@@ -58,6 +63,8 @@
 </script>
 
 <main class="flex h-screen flex-row flex-wrap justify-center gap-4">
+  <!-- TODO separate components with component events -->
+
   {#if $editMode}
     <SearchView />
   {:else}
@@ -76,7 +83,6 @@
         <div class="dark:text-slate-200 text-center pb-10">
           Add stops to get started
         </div>
-        <FirebaseUi />
       {/each}
 
       <div
@@ -94,6 +100,7 @@
             add
           </span><span> Add stop</span>
         </button>
+        <FirebaseUi />
 
         {#if $savedStops.length > 0}
           <button

@@ -1,10 +1,10 @@
 <script lang="ts">
   import { tripDataUrl } from "../data/api-links";
   import type { components, operations } from "../data/bkk-openapi";
-  import { fetchData } from "../hooks/fetch";
+  import { fetchData } from "../util/fetch";
   import Countdown from "./Countdown.svelte";
   import TripDetails from "./TripDetails.svelte";
-  import { epochToDate, displayDate } from "../hooks/dateMagic";
+  import { epochToDate, displayDate } from "../util/dateMagic";
   import { expandedTripId } from "../data/stores";
   import { onMount } from "svelte";
 

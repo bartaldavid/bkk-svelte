@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { components } from "../data/bkk-openapi";
-  import { epochToDate, displayDate } from "../hooks/dateMagic";
+  import { epochToDate, displayDate } from "../util/dateMagic";
 
   export let tripRef: components["schemas"]["TransitReferences"];
   export let tripData: components["schemas"]["TransitTripDetailsOTP"];

@@ -2,7 +2,7 @@
   import type { components, operations } from "../data/bkk-openapi";
   import { savedStops, editMode } from "../data/stores";
   import Stop from "./Stop.svelte";
-  import { fetchData } from "../hooks/fetch";
+  import { fetchData } from "../util/fetch";
   import { stopsForLocationUrl } from "../data/api-links";
 
   let loading = false;
