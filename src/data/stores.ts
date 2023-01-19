@@ -1,5 +1,5 @@
 import { onAuthStateChanged, type User } from "firebase/auth";
-import { collection, query, where } from "firebase/firestore";
+import { collection, query } from "firebase/firestore";
 import { writable } from "svelte/store";
 import { auth } from "../util/firebaseSetup";
 import type { components } from "./bkk-openapi";
@@ -28,7 +28,7 @@ export const expandedTripId = writable("");
 export const selectedStopID = writable("");
 
 export const user = writable<User | null>(null); // FIXME can't assign null
-export const userData = writable<savedStop[]>(); // TODO type
+export const userData = writable<savedStop[]>();
 
 // it would be much more difficult to correctly type this
 let unsubData: any;
@@ -38,11 +38,13 @@ onAuthStateChanged(auth, async (currentUser) => {
   if (currentUser) {
     const { getFirestore, onSnapshot } = await import("firebase/firestore");
     const firestore = getFirestore();
-    const stopsRef = collection(firestore, "stops");
+    const stopsRef = collection(firestore, `userdata/${currentUser.uid}/stops`);
 
-    const q = query(stopsRef, where("uid", "==", currentUser.uid));
+    const q = query(stopsRef);
     unsubData = onSnapshot(q, (snap) => {
-      userData.set(snap.docs);
+      const stops: savedStop[] = [];
+      snap.forEach((doc) => stops.push(doc.data()));
+      userData.set(stops);
     });
   } else {
     unsubData && unsubData();
