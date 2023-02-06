@@ -1,13 +1,17 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import type { components } from "../data/bkk-openapi";
   import { savedStops, type savedStop } from "../data/stores";
-  import { prevent_default } from "svelte/internal";
 
   export let references: components["schemas"]["TransitReferences"] = {};
   export let stop: savedStop = {};
   $: saved = $savedStops.some((savedStop) => savedStop.id == stop.id);
 
-  function toggleStop(stop: components["schemas"]["TransitStop"]) {
+  const dispatch = createEventDispatcher<{
+    remove: { id: string | undefined };
+  }>();
+
+  function toggleStop() {
     if (!saved) {
       let routeRefForStop: {
         [key: string]: components["schemas"]["TransitRoute"] | undefined;
@@ -19,6 +23,7 @@
       savedStops.update((prev) => [...prev, stopToSave]);
     } else {
       savedStops.update((prev) => prev.filter((e) => e.id !== stop.id));
+      dispatch("remove", { id: stop?.id });
     }
   }
 </script>
@@ -55,7 +60,7 @@
     <!-- <div class="text-xs text-gray-500">{stop.id}</div> -->
   </div>
   <div class="flex w-8 flex-col self-center p-1">
-    <button on:click={() => toggleStop(stop)}>
+    <button on:click={() => toggleStop()}>
       <span
         class="material-symbols-outlined dark:text-slate-100"
         style:font-variation-settings={saved ? "'FILL' 1" : ""}>favorite</span

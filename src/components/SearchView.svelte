@@ -1,9 +1,10 @@
 <script lang="ts">
   import type { components, operations } from "../data/bkk-openapi";
-  import { savedStops, editMode } from "../data/stores";
+  import { savedStops, editMode, stopsRef, user } from "../data/stores";
   import Stop from "./Stop.svelte";
   import { fetchData } from "../util/fetch";
   import { stopsForLocationUrl } from "../data/api-links";
+  import { deleteDoc, doc, getFirestore } from "firebase/firestore";
 
   let loading = false;
   // TODO display error if something goes wrong
@@ -32,6 +33,13 @@
     if (searchQuery.length > 2) {
       timer = setTimeout(() => getStops(), 300);
     }
+  }
+
+  async function removeStop(event: CustomEvent<{ id: string | undefined }>) {
+    const firestore = getFirestore(); // this should only be done in one place
+    await deleteDoc(
+      doc(firestore, `userdata/${$user?.uid}/stops`, event.detail.id ?? "")
+    );
   }
 </script>
 
@@ -65,7 +73,7 @@
   <div class="flex flex-col gap-1">
     {#if searchQuery.length < 3 && $savedStops}
       {#each $savedStops as savedStop}
-        <Stop {references} stop={savedStop} />
+        <Stop {references} stop={savedStop} on:remove={removeStop} />
       {/each}
     {:else}
       {#each listOfNearbyStops as nearbyStop}

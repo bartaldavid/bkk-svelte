@@ -16,6 +16,7 @@
     SUBWAY: { icon: "subway", color: "#005ca5" },
     TRAM: { icon: "tram", color: "#FFD800" },
     TROLLEYBUS: { icon: "directions_bus", color: "#009EE3" },
+    COACH: { icon: "directions_bus", color: "#009EE3" },
     SUBURBAN_RAILWAY: { icon: "train", color: "#2E5EA8" },
   };
 </script>

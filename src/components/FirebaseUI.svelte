@@ -7,7 +7,6 @@
   } from "firebase/auth";
   import { collection, addDoc } from "firebase/firestore";
   import { auth } from "../util/firebaseSetup";
-  import { serverTimestamp } from "firebase/firestore";
   import { savedStops, user, userData } from "../data/stores";
 
   const provider = new GoogleAuthProvider();
