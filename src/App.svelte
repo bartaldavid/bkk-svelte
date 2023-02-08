@@ -10,6 +10,7 @@
   import FirebaseUi from "./components/FirebaseUI.svelte";
   import DeleteAllStopsBtn from "./components/DeleteAllStopsBtn.svelte";
   import StopsView from "./components/StopsView.svelte";
+  import DeparturesList from "./components/DeparturesList.svelte";
 
   const defaultStopParams: operations["getArrivalsAndDeparturesForStop"]["parameters"]["query"] =
     {
@@ -29,7 +30,6 @@
     {};
   let selectedStopId: string;
 
-  // TODO stopID should probably be from a single source of truth
   async function getStopData(stopId: string): Promise<void> {
     loading = true;
     selectedStopId = stopId;
@@ -43,7 +43,7 @@
     departures = data?.entry?.stopTimes!;
   }
   setInterval(() => {
-    if (departures.length > 0 && selectedStopId && !$editMode) {
+    if (departures?.length > 0 && selectedStopId && !$editMode) {
       getStopData(selectedStopId);
     }
   }, 20000);
@@ -92,6 +92,10 @@
       </div>
     </div>
 
+    {#if error}
+      <p>{error}</p>
+    {/if}
+
     {#if departures.length > 0}
       <div
         class="flex h-screen w-full flex-col gap-2 pt-4 sm:w-72 sm:overflow-auto"
@@ -115,9 +119,7 @@
           >
         </div>
 
-        {#each departures as departure (crypto.randomUUID())}
-          <Departure {departure} {references} />
-        {/each}
+        <DeparturesList {departures} {references} />
       </div>
     {/if}
   {/if}

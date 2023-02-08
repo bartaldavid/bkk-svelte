@@ -9,18 +9,17 @@ import { get, writable } from "svelte/store";
 import { auth, db } from "../util/firebaseSetup";
 import type { components } from "./bkk-openapi";
 
-const STOPS_LSKEY = "bkk.stops";
-
 export type savedStop = components["schemas"]["TransitStop"] & {
   routeRef?: {
     [key: string]: components["schemas"]["TransitRoute"] | undefined;
   };
 };
 
-const storedStops: savedStop[] = JSON.parse(
-  localStorage.getItem(STOPS_LSKEY) ?? "{}"
-);
-export const savedStops = writable<savedStop[]>(storedStops ?? []);
+// const STOPS_LSKEY = "bkk.stops";
+// const storedStops: savedStop[] = JSON.parse(
+//   localStorage.getItem(STOPS_LSKEY) ?? "{}"
+// );
+export const savedStops = writable<savedStop[]>([]);
 
 export const editMode = writable(false);
 
@@ -46,7 +45,7 @@ savedStops.subscribe(async (stops) => {
     }
   } else {
     // will only save to localstorage if user isn't logged in
-    localStorage.setItem(STOPS_LSKEY, JSON.stringify(stops));
+    // localStorage.setItem(STOPS_LSKEY, JSON.stringify(stops));
   }
 });
 

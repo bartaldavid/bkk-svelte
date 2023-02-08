@@ -5,10 +5,13 @@
   import Countdown from "./Countdown.svelte";
   import TripDetails from "./TripDetails.svelte";
   import { epochToDate, displayDate } from "../util/dateMagic";
-  import { onMount } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte";
 
   export let departure: components["schemas"]["TransitScheduleStopTime"] = {};
   export let references: components["schemas"]["OTPTransitReferences"] = {};
+  export let expandedTripId: string;
+
+  const dispatch = createEventDispatcher();
 
   let tripParams: operations["getTripDetails"]["parameters"]["query"] = {
     tripId: departure.tripId,
@@ -24,7 +27,6 @@
 
   let tripRef: components["schemas"]["TransitReferences"];
   let tripData: components["schemas"]["TransitTripDetailsOTP"];
-  let expandedTripId: string;
 
   const routeId = references?.trips?.[departure?.tripId!]?.routeId;
   const routeData = references?.routes?.[routeId!];
@@ -52,15 +54,15 @@
 
   // TODO migrating this to Svelte Query should solve refresh glitch
   async function toggleDetails() {
-    if (expandedTripId !== departure.tripId) {
+    if (expandedTripId !== departure.tripId && departure.tripId) {
       let response: tripDetailResponse = await fetchData<
         components["schemas"]["TripDetailsOTPMethodResponse"]
       >(tripDataUrl, tripParams!);
       tripData = response.data.entry!;
       tripRef = response.data.references!;
-      expandedTripId = departure.tripId ?? "";
+      dispatch("expand", { id: departure.tripId });
     } else {
-      expandedTripId = "";
+      dispatch("collapse");
     }
   }
 </script>

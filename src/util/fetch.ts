@@ -24,6 +24,7 @@ export async function fetchData<ResponseType extends baseResponse>(
       data = d.data;
     })
     .catch((err) => {
+      console.log(err);
       error = err;
     })
     .finally(() => (loading = false));
