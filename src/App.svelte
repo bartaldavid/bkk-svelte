@@ -3,16 +3,13 @@
   import type { operations, components } from "./data/bkk-openapi";
   import Departure from "./components/Departure.svelte";
   import SearchView from "./components/SearchView.svelte";
-  import {
-    savedStops,
-    editMode,
-    selectedStopID,
-    type savedStop,
-  } from "./data/stores";
+  import { savedStops, editMode, type savedStop, user } from "./data/stores";
   import { fetchData } from "./util/fetch";
   import { stopDataUrl } from "./data/api-links";
-  import SavedStopGroup from "./components/SavedStopGroup.svelte";
+
   import FirebaseUi from "./components/FirebaseUI.svelte";
+  import DeleteAllStopsBtn from "./components/DeleteAllStopsBtn.svelte";
+  import StopsView from "./components/StopsView.svelte";
 
   const defaultStopParams: operations["getArrivalsAndDeparturesForStop"]["parameters"]["query"] =
     {
@@ -30,36 +27,26 @@
   let error = "";
   let data: components["schemas"]["TransitEntryWithReferencesTransitArrivalsAndDepartures"] =
     {};
+  let selectedStopId: string;
 
   // TODO stopID should probably be from a single source of truth
   async function getStopData(stopId: string): Promise<void> {
     loading = true;
+    selectedStopId = stopId;
     const stopParams = { ...defaultStopParams, stopId: [stopId] };
     ({ loading, error, data } = await fetchData<
       components["schemas"]["ArrivalsAndDeparturesForStopOTPMethodResponse"]
     >(stopDataUrl, stopParams));
+
+    // TODO throw error
     references = data.references!;
     departures = data?.entry?.stopTimes!;
   }
   setInterval(() => {
-    if (departures.length > 0 && $selectedStopID && !$editMode) {
-      getStopData($selectedStopID);
+    if (departures.length > 0 && selectedStopId && !$editMode) {
+      getStopData(selectedStopId);
     }
   }, 20000);
-
-  type savedStopGroup = {
-    [key in components["schemas"]["TransitStop"]["type"] as string]: savedStop[];
-  };
-
-  let savedStopGroups: savedStopGroup;
-  $: savedStopGroups = $savedStops.reduce((result, currentStop) => {
-    if (currentStop.type) {
-      (result[currentStop.type] = result[currentStop.type] || []).push(
-        currentStop
-      );
-    }
-    return result;
-  }, {} as savedStopGroup);
 </script>
 
 <main class="flex h-screen flex-row flex-wrap justify-center gap-4">
@@ -74,16 +61,14 @@
         ? 'justify-center'
         : ''} gap-2 sm:w-72"
     >
-      {#each Object.entries(savedStopGroups) as [groupType, groupItems]}
-        <SavedStopGroup {groupType} {groupItems} {getStopData} />
-      {:else}
-        <div class="dark:text-slate-50 text-4xl text-center p-4 pb-0">
-          BartalFUTÁR
-        </div>
-        <div class="dark:text-slate-200 text-center pb-10">
-          Add stops to get started
-        </div>
-      {/each}
+      <FirebaseUi />
+
+      <StopsView
+        on:stopSelected={(event) => {
+          // TODO type event
+          getStopData(event.detail.id);
+        }}
+      />
 
       <div
         class="flex gap-2 rounded bg-slate-50 p-2 dark:bg-slate-800 {$savedStops.length ===
@@ -100,20 +85,9 @@
             add
           </span><span> Add stop</span>
         </button>
-        <FirebaseUi />
 
         {#if $savedStops.length > 0}
-          <button
-            class="button-outline bg-white text-red-500 dark:border-none dark:bg-slate-700 dark:text-red-400"
-            on:click={() => {
-              $savedStops = [];
-            }}
-            ><span
-              class="material-symbols-outlined mr-1 align-bottom text-base"
-            >
-              delete_forever
-            </span><span> Delete all</span></button
-          >
+          <DeleteAllStopsBtn />
         {/if}
       </div>
     </div>
@@ -125,7 +99,7 @@
         <div class="flex items-center gap-2">
           <button
             class="button-outline dark:text-slate-100"
-            on:click={() => getStopData($selectedStopID)}
+            on:click={() => getStopData(selectedStopId)}
             ><span
               class="material-symbols-outlined pr-1 align-bottom text-base"
             >
@@ -136,7 +110,7 @@
             class="button-outline dark:text-slate-100"
             on:click={() => {
               departures = [];
-              $selectedStopID = "";
+              selectedStopId = "";
             }}>Clear</button
           >
         </div>

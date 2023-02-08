@@ -1,11 +1,12 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import type { components } from "../data/bkk-openapi";
-  import { selectedStopID } from "../data/stores";
   import VehicleIcons from "./VehicleIcons.svelte";
 
   export let groupType: string;
   export let groupItems: components["schemas"]["TransitStop"][];
-  export let getStopData: (stopId: string) => void;
+
+  const dispatch = createEventDispatcher();
 </script>
 
 <div class="mb-1 flex flex-row rounded bg-slate-50 p-2 dark:bg-slate-800">
@@ -13,12 +14,12 @@
     <VehicleIcons vehicleType={groupType} />
   </div>
   <div class="flex flex-wrap gap-1">
+    <!-- TODO separate this into its own stop component? -->
     {#each groupItems as stop}
       <button
         class="flex-1 break-words rounded bg-slate-100 p-2 text-sm dark:bg-slate-700 dark:text-slate-50"
         on:click={() => {
-          $selectedStopID = stop.id ?? "";
-          getStopData(stop.id ?? "");
+          dispatch("stopSelected", { id: stop.id });
         }}
         >{stop.name}
       </button>

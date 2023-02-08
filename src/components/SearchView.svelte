@@ -5,6 +5,7 @@
   import { fetchData } from "../util/fetch";
   import { stopsForLocationUrl } from "../data/api-links";
   import { deleteDoc, doc, getFirestore } from "firebase/firestore";
+  import { db } from "../util/firebaseSetup";
 
   let loading = false;
   // TODO display error if something goes wrong
@@ -35,11 +36,11 @@
     }
   }
 
+  // FIXME this could also be inside of the components, don't know which one is more effective
   async function removeStop(event: CustomEvent<{ id: string | undefined }>) {
-    const firestore = getFirestore(); // this should only be done in one place
-    await deleteDoc(
-      doc(firestore, `userdata/${$user?.uid}/stops`, event.detail.id ?? "")
-    );
+    if (event.detail.id) {
+      await deleteDoc(doc(db, `userdata/${$user?.uid}/stops`, event.detail.id));
+    }
   }
 </script>
 
