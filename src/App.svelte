@@ -1,9 +1,8 @@
 <script lang="ts">
   import { each } from "svelte/internal";
   import type { operations, components } from "./data/bkk-openapi";
-  import Departure from "./components/Departure.svelte";
   import SearchView from "./components/SearchView.svelte";
-  import { savedStops, editMode, type savedStop, user } from "./data/stores";
+  import { savedStops, editMode } from "./data/stores";
   import { fetchData } from "./util/fetch";
   import { stopDataUrl } from "./data/api-links";
 

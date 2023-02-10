@@ -8,7 +8,8 @@
   $: saved = $savedStops.some((savedStop) => savedStop.id == stop.id);
 
   const dispatch = createEventDispatcher<{
-    remove: { id: string | undefined };
+    remove: { id: string };
+    add: { stop: savedStop };
   }>();
 
   function toggleStop() {
@@ -20,10 +21,13 @@
         routeRefForStop[routeId] = references.routes?.[routeId];
       });
       const stopToSave: savedStop = { ...stop, routeRef: routeRefForStop };
-      savedStops.update((prev) => [...prev, stopToSave]);
+      dispatch("add", { stop: stopToSave });
+      console.log("Add dispatched");
+      // savedStops.update((prev) => [...prev, stopToSave]);
     } else {
-      savedStops.update((prev) => prev.filter((e) => e.id !== stop.id));
-      dispatch("remove", { id: stop?.id });
+      // savedStops.update((prev) => prev.filter((e) => e.id !== stop.id));
+      stop.id && dispatch("remove", { id: stop.id });
+      console.log("Remove event dispatched");
     }
   }
 </script>
@@ -36,14 +40,14 @@
       <div class="mb-1 dark:text-slate-50">{stop.name}</div>
     </div>
     <div class="flex flex-row flex-wrap gap-1 ">
-      {#each stop?.routeIds || [] as routeid}
+      {#each stop?.routeIds ?? [] as routeid}
         {@const routeRef =
           stop?.routeRef?.[routeid] ?? references?.routes?.[routeid]}
         <span
           class="rounded p-1 text-xs"
           style:color={"#" + routeRef?.style?.icon?.textColor}
           style:background-color={"#" + routeRef?.style?.color}
-          >{routeRef?.shortName || ""}
+          >{routeRef?.shortName ?? ""}
         </span>
       {/each}
 

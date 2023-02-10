@@ -28,26 +28,26 @@ export const stopsRef = writable<CollectionReference<DocumentData>>();
 // it would be much more difficult to correctly type this
 let unsubData: any;
 
-savedStops.subscribe(async (stops) => {
-  if (get(user)?.uid) {
-    try {
-      const { writeBatch, doc } = await import("firebase/firestore");
-      const batch = writeBatch(db);
+// savedStops.subscribe(async (stops) => {
+//   if (get(user)?.uid) {
+//     try {
+//       const { writeBatch, doc } = await import("firebase/firestore");
+//       const batch = writeBatch(db);
 
-      stops.forEach((stop) => {
-        const docRef = doc(get(stopsRef), stop.id);
-        batch.set(docRef, stop);
-      });
-      await batch.commit();
-      console.log("Documents written successfully");
-    } catch (error) {
-      console.error("Error occured", error);
-    }
-  } else {
-    // will only save to localstorage if user isn't logged in
-    // localStorage.setItem(STOPS_LSKEY, JSON.stringify(stops));
-  }
-});
+//       stops.forEach((stop) => {
+//         const docRef = doc(get(stopsRef), stop.id);
+//         batch.set(docRef, stop);
+//       });
+//       await batch.commit();
+//       console.log("Documents written successfully");
+//     } catch (error) {
+//       console.error("Error occured", error);
+//     }
+//   } else {
+//     // will only save to localstorage if user isn't logged in
+//     // localStorage.setItem(STOPS_LSKEY, JSON.stringify(stops));
+//   }
+// });
 
 onAuthStateChanged(auth, async (currentUser) => {
   user.set(currentUser);

@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { components, operations } from "../data/bkk-openapi";
-  import { savedStops, editMode, stopsRef, user } from "../data/stores";
+  import { savedStops, editMode, user, type savedStop } from "../data/stores";
   import Stop from "./Stop.svelte";
   import { fetchData } from "../util/fetch";
   import { stopsForLocationUrl } from "../data/api-links";
-  import { deleteDoc, doc, getFirestore } from "firebase/firestore";
+  import { deleteDoc, doc, setDoc } from "firebase/firestore";
   import { db } from "../util/firebaseSetup";
 
   let loading = false;
@@ -37,10 +37,17 @@
   }
 
   // FIXME this could also be inside of the components, don't know which one is more effective
-  async function removeStop(event: CustomEvent<{ id: string | undefined }>) {
-    if (event.detail.id) {
-      await deleteDoc(doc(db, `userdata/${$user?.uid}/stops`, event.detail.id));
-    }
+  async function removeStop(event: CustomEvent<{ id: string }>) {
+    await deleteDoc(doc(db, `userdata/${$user?.uid}/stops`, event.detail.id));
+    console.log("Removed");
+  }
+
+  async function saveStop(event: CustomEvent<{ stop: savedStop }>) {
+    await setDoc(
+      doc(db, `userdata/${$user?.uid}/stops`, event.detail.stop?.id ?? ""),
+      event.detail.stop
+    );
+    console.log("Saved");
   }
 </script>
 
@@ -60,26 +67,38 @@
       type="text"
       placeholder="Search for stops"
       bind:value={searchQuery}
-      on:keyup={(e) => {
+      on:keyup={() => {
         debounceFetch();
       }}
       autofocus
       class="flex-1 bg-slate-200 outline-none dark:bg-slate-700 dark:text-slate-100"
     />
+    <!-- FIXME this should only be a loading indicator -->
     <button on:click={getStops} class="dark:text-slate-100"
       >{loading ? "Loading..." : "Search"}</button
     >
   </div>
 
   <div class="flex flex-col gap-1">
+    <!-- FIXME get rid of this duplication -->
     {#if searchQuery.length < 3 && $savedStops}
       {#each $savedStops as savedStop}
-        <Stop {references} stop={savedStop} on:remove={removeStop} />
+        <Stop
+          {references}
+          stop={savedStop}
+          on:add={(e) => saveStop(e)}
+          on:remove={(e) => removeStop(e)}
+        />
       {/each}
     {:else}
       {#each listOfNearbyStops as nearbyStop}
-        {#if nearbyStop.locationType == 0 && nearbyStop?.routeIds?.length && nearbyStop?.routeIds?.length > 0}
-          <Stop {references} stop={nearbyStop} />
+        {#if nearbyStop.locationType == 0 && nearbyStop?.routeIds?.length}
+          <Stop
+            {references}
+            stop={nearbyStop}
+            on:add={(e) => saveStop(e)}
+            on:remove={(e) => removeStop(e)}
+          />
         {/if}
       {/each}
     {/if}

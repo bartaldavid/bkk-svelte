@@ -1,29 +1,26 @@
 <script lang="ts">
-  import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+  import {
+    GoogleAuthProvider,
+    signInAnonymously,
+    signInWithPopup,
+    signOut,
+  } from "firebase/auth";
+  import { user } from "../data/stores";
   import { auth } from "../util/firebaseSetup";
 
   const provider = new GoogleAuthProvider();
-  let isLoggedIn: boolean;
-  let userFullname: string;
-
-  auth.onAuthStateChanged((user) => {
-    if (user) {
-      isLoggedIn = true;
-      userFullname = user?.displayName ?? "Anonymus";
-    } else {
-      isLoggedIn = false;
-      userFullname = "";
-    }
-  });
 </script>
 
 <div class="self-center text-white">
-  {#if isLoggedIn}
-    <div>Hi, {userFullname}</div>
+  {#if $user}
+    <div>Hi, {$user.displayName ?? $user.uid}</div>
     <button on:click={() => signOut(auth)}>Sign out</button>
   {:else}
     <button on:click={() => signInWithPopup(auth, provider)}
       >Sign in with google</button
+    >
+    <!-- TODO make this automatic -->
+    <button on:click={() => signInAnonymously(auth)}>Sign in anonymously</button
     >
   {/if}
 </div>

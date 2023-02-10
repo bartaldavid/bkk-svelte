@@ -3,11 +3,10 @@
   import { savedStops, user } from "../data/stores";
   import { db } from "../util/firebaseSetup";
 
-  // TODO this is currently not working
   async function deleteAll() {
     if ($user?.uid) {
       try {
-        // this is not working, may have to loop manually through all subdocs
+        // FIXME this is not working, may have to loop manually through all subdocs
         await deleteDoc(doc(db, "userdata", $user.uid));
         console.log("deletion successful");
       } catch (e) {

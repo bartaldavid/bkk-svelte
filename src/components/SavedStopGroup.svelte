@@ -15,7 +15,7 @@
   </div>
   <div class="flex flex-wrap gap-1">
     <!-- TODO separate this into its own stop component? -->
-    {#each groupItems as stop}
+    {#each groupItems as stop (stop.id)}
       <button
         class="flex-1 break-words rounded bg-slate-100 p-2 text-sm dark:bg-slate-700 dark:text-slate-50"
         on:click={() => {
