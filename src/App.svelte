@@ -91,6 +91,7 @@
       </div>
     </div>
 
+    <!-- FIXME make this a better error display -->
     {#if error}
       <p>{error}</p>
     {/if}

@@ -18,6 +18,13 @@
   let stopsForLocationParams: operations["getStopsForLocation"]["parameters"]["query"] =
     { query: "", lon: 47.452734, lat: 19.18329 };
   let timer: NodeJS.Timeout;
+  let stopsToDisplay: savedStop[];
+  $: stopsToDisplay =
+    searchQuery.length < 3 && $savedStops
+      ? $savedStops
+      : listOfNearbyStops.filter((stop) => {
+          stop.locationType == 0 && stop.routeIds?.length;
+        });
 
   async function getStops() {
     loading = true;
@@ -80,27 +87,13 @@
   </div>
 
   <div class="flex flex-col gap-1">
-    <!-- FIXME get rid of this duplication -->
-    {#if searchQuery.length < 3 && $savedStops}
-      {#each $savedStops as savedStop}
-        <Stop
-          {references}
-          stop={savedStop}
-          on:add={(e) => saveStop(e)}
-          on:remove={(e) => removeStop(e)}
-        />
-      {/each}
-    {:else}
-      {#each listOfNearbyStops as nearbyStop}
-        {#if nearbyStop.locationType == 0 && nearbyStop?.routeIds?.length}
-          <Stop
-            {references}
-            stop={nearbyStop}
-            on:add={(e) => saveStop(e)}
-            on:remove={(e) => removeStop(e)}
-          />
-        {/if}
-      {/each}
-    {/if}
+    {#each stopsToDisplay as stop}
+      <Stop
+        {references}
+        {stop}
+        on:add={(e) => saveStop(e)}
+        on:remove={(e) => removeStop(e)}
+      />
+    {/each}
   </div>
 </div>
