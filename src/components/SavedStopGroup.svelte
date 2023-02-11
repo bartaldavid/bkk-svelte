@@ -6,7 +6,9 @@
   export let groupType: string;
   export let groupItems: components["schemas"]["TransitStop"][];
 
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher<{
+    stopSelected: { id: string };
+  }>();
 </script>
 
 <div class="mb-1 flex flex-row rounded bg-slate-50 p-2 dark:bg-slate-800">
@@ -19,7 +21,7 @@
       <button
         class="flex-1 break-words rounded bg-slate-100 p-2 text-sm dark:bg-slate-700 dark:text-slate-50"
         on:click={() => {
-          dispatch("stopSelected", { id: stop.id });
+          stop.id && dispatch("stopSelected", { id: stop.id });
         }}
         >{stop.name}
       </button>
