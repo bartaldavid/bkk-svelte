@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { components, operations } from "../data/bkk-openapi";
-  import { savedStops, editMode, user, type savedStop } from "../data/stores";
+  import { savedStops, editMode, user, type savedStop, fetchError } from "../data/stores";
   import Stop from "./Stop.svelte";
   import { fetchData } from "../util/fetch";
   import { stopsForLocationUrl } from "../data/api-links";
@@ -8,7 +8,6 @@
   import { db } from "../util/firebaseSetup";
 
   let loading = false;
-  // TODO display error if something goes wrong
   let error = "";
   let data: components["schemas"]["TransitListEntryWithReferencesTransitStop"] =
     {};
@@ -18,6 +17,7 @@
   let stopsForLocationParams: operations["getStopsForLocation"]["parameters"]["query"] =
     { query: "", lon: 47.452734, lat: 19.18329 };
   let timer: NodeJS.Timeout;
+
   let stopsToDisplay: savedStop[];
   $: stopsToDisplay =
     searchQuery.length < 3 && $savedStops
@@ -32,6 +32,7 @@
     ({ loading, error, data } = await fetchData<
       components["schemas"]["StopsForLocationResponse"]
     >(stopsForLocationUrl, stopsForLocationParams));
+    $fetchError = error;
     references = data.references!;
     listOfNearbyStops = data.list!;
   }

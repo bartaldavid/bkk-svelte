@@ -18,9 +18,11 @@ export type savedStop = components["schemas"]["TransitStop"] & {
 export const savedStops = writable<savedStop[]>([]);
 
 export const editMode = writable(false);
+export const fetchError = writable("");
 
 export const user = writable<User | null>(null); // FIXME can't assign null
 export const stopsRef = writable<CollectionReference<DocumentData>>();
+
 // it would be much more difficult to correctly type this
 let unsubData: any;
 

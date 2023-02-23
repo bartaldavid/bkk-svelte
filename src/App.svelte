@@ -2,7 +2,7 @@
   import { each } from "svelte/internal";
   import type { operations, components } from "./data/bkk-openapi";
   import SearchView from "./components/SearchView.svelte";
-  import { savedStops, editMode } from "./data/stores";
+  import { savedStops, editMode, fetchError } from "./data/stores";
   import { fetchData } from "./util/fetch";
   import { stopDataUrl } from "./data/api-links";
 
@@ -36,7 +36,7 @@
     ({ loading, error, data } = await fetchData<
       components["schemas"]["ArrivalsAndDeparturesForStopOTPMethodResponse"]
     >(stopDataUrl, stopParams));
-
+    $fetchError = error;
     // TODO throw error
     references = data.references!;
     departures = data?.entry?.stopTimes!;
@@ -92,8 +92,8 @@
     </div>
 
     <!-- FIXME make this a better error display -->
-    {#if error}
-      <p>{error}</p>
+    {#if $fetchError}
+      <p>{$fetchError}</p>
     {/if}
 
     {#if departures.length > 0}

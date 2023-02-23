@@ -22,6 +22,7 @@
 {#each Object.entries(savedStopGroups) as [groupType, groupItems]}
   <SavedStopGroup {groupType} {groupItems} on:stopSelected />
 {:else}
+  <!-- TODO move this up -->
   <div class="dark:text-slate-50 text-4xl text-center p-4 pb-0">
     BartalFUTÁR
   </div>
