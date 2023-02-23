@@ -8,7 +8,7 @@ const storedStops: components["schemas"]["TransitStop"][] = JSON.parse(
   localStorage.getItem(STOPS_LSKEY) ?? "[]"
 );
 export const savedStops =
-  writable<components["schemas"]["TransitStop"][]>(storedStops);
+  writable<components["schemas"]["TransitStop"][]>(storedStops?.length ? storedStops : []);
 
 savedStops.subscribe((value) =>
   localStorage.setItem(STOPS_LSKEY, JSON.stringify(value))
