@@ -1,14 +1,14 @@
 import { writable } from "svelte/store";
 import type { components } from "./bkk-openapi";
-import defaultStops from "./defaultStops";
 
 const STOPS_LSKEY = "bkk.stops";
 const ROUTE_REF_LSKEY = "bkk.reference";
 
-const storedStops = JSON.parse(localStorage.getItem(STOPS_LSKEY) ?? "{}");
-export const savedStops = writable<components["schemas"]["TransitStop"][]>(
-  storedStops || defaultStops
+const storedStops: components["schemas"]["TransitStop"][] = JSON.parse(
+  localStorage.getItem(STOPS_LSKEY) ?? "[]"
 );
+export const savedStops =
+  writable<components["schemas"]["TransitStop"][]>(storedStops);
 
 savedStops.subscribe((value) =>
   localStorage.setItem(STOPS_LSKEY, JSON.stringify(value))
