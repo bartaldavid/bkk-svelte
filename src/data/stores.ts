@@ -15,6 +15,8 @@ export type savedStop = components["schemas"]["TransitStop"] & {
   };
 };
 
+// TODO migration function ls->fb
+
 export const savedStops = writable<savedStop[]>([]);
 
 export const editMode = writable(false);
