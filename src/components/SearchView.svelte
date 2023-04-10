@@ -1,11 +1,15 @@
 <script lang="ts">
   import type { components, operations } from "../data/bkk-openapi";
-  import { savedStops, editMode, user, type savedStop, fetchError } from "../data/stores";
+  import {
+    savedStops,
+    editMode,
+    user,
+    type savedStop,
+    fetchError,
+  } from "../data/stores";
   import Stop from "./Stop.svelte";
   import { fetchData } from "../util/fetch";
   import { stopsForLocationUrl } from "../data/api-links";
-  import { deleteDoc, doc, setDoc } from "firebase/firestore";
-  import { db } from "../util/firebaseSetup";
 
   let loading = false;
   let error = "";
@@ -19,11 +23,13 @@
   let timer: NodeJS.Timeout;
 
   let stopsToDisplay: savedStop[];
+
+  // FIXME refractor this to be a bit cleaner
   $: stopsToDisplay =
-    searchQuery.length < 3 && $savedStops
+    searchQuery.length < 3
       ? $savedStops
       : listOfNearbyStops.filter((stop) => {
-          stop.locationType == 0 && stop.routeIds?.length;
+          return stop?.locationType == 0 && stop?.routeIds?.length;
         });
 
   async function getStops() {
@@ -42,20 +48,6 @@
     if (searchQuery.length > 2) {
       timer = setTimeout(() => getStops(), 300);
     }
-  }
-
-  // FIXME this could also be inside of the components, don't know which one is more effective
-  async function removeStop(event: CustomEvent<{ id: string }>) {
-    await deleteDoc(doc(db, `userdata/${$user?.uid}/stops`, event.detail.id));
-    console.log("Removed");
-  }
-
-  async function saveStop(event: CustomEvent<{ stop: savedStop }>) {
-    await setDoc(
-      doc(db, `userdata/${$user?.uid}/stops`, event.detail.stop?.id ?? ""),
-      event.detail.stop
-    );
-    console.log("Saved");
   }
 </script>
 
@@ -89,12 +81,7 @@
 
   <div class="flex flex-col gap-1">
     {#each stopsToDisplay as stop}
-      <Stop
-        {references}
-        {stop}
-        on:add={(e) => saveStop(e)}
-        on:remove={(e) => removeStop(e)}
-      />
+      <Stop {references} {stop} />
     {/each}
   </div>
 </div>

@@ -2,15 +2,14 @@
   import { createEventDispatcher } from "svelte";
   import type { components } from "../data/bkk-openapi";
   import { savedStops, type savedStop } from "../data/stores";
+  import {
+    removeStopFromFirestore,
+    saveStopToFirestore,
+  } from "../util/manageFbData";
 
   export let references: components["schemas"]["TransitReferences"] = {};
   export let stop: savedStop = {};
   $: saved = $savedStops.some((savedStop) => savedStop.id == stop.id);
-
-  const dispatch = createEventDispatcher<{
-    remove: { id: string };
-    add: { stop: savedStop };
-  }>();
 
   function toggleStop() {
     if (!saved) {
@@ -20,13 +19,9 @@
       stop.routeIds?.forEach((routeId) => {
         routeRefForStop[routeId] = references.routes?.[routeId];
       });
-      const stopToSave: savedStop = { ...stop, routeRef: routeRefForStop };
-      dispatch("add", { stop: stopToSave });
-      console.log("Add dispatched");
-      // savedStops.update((prev) => [...prev, stopToSave]);
+      saveStopToFirestore({ ...stop, routeRef: routeRefForStop });
     } else {
-      // savedStops.update((prev) => prev.filter((e) => e.id !== stop.id));
-      stop.id && dispatch("remove", { id: stop.id });
+      stop.id && removeStopFromFirestore(stop.id);
       console.log("Remove event dispatched");
     }
   }

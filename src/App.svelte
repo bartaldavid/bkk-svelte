@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { each } from "svelte/internal";
+  import { each, onMount } from "svelte/internal";
   import type { operations, components } from "./data/bkk-openapi";
   import SearchView from "./components/SearchView.svelte";
-  import { savedStops, editMode, fetchError } from "./data/stores";
+  import { savedStops, editMode, fetchError, user } from "./data/stores";
   import { fetchData } from "./util/fetch";
   import { stopDataUrl } from "./data/api-links";
 
@@ -10,6 +10,9 @@
   import DeleteAllStopsBtn from "./components/DeleteAllStopsBtn.svelte";
   import StopsView from "./components/StopsView.svelte";
   import DeparturesList from "./components/DeparturesList.svelte";
+  import migrate from "./util/migrateToFirebase";
+  import { signInAnonymously } from "firebase/auth";
+  import { auth } from "./util/firebaseSetup";
 
   const defaultStopParams: operations["getArrivalsAndDeparturesForStop"]["parameters"]["query"] =
     {
@@ -29,18 +32,29 @@
     {};
   let selectedStopId: string;
 
+  onMount(async () => {
+    if (!$user) {
+      await signInAnonymously(auth)
+    };
+    await migrate();
+  });
+
+  // TODO separate this into a module?
   async function getStopData(stopId: string): Promise<void> {
     loading = true;
     selectedStopId = stopId;
     const stopParams = { ...defaultStopParams, stopId: [stopId] };
+
     ({ loading, error, data } = await fetchData<
       components["schemas"]["ArrivalsAndDeparturesForStopOTPMethodResponse"]
     >(stopDataUrl, stopParams));
     $fetchError = error;
+
     // TODO throw error
     references = data.references!;
     departures = data?.entry?.stopTimes!;
   }
+
   setInterval(() => {
     if (departures?.length > 0 && selectedStopId && !$editMode) {
       getStopData(selectedStopId);
@@ -48,9 +62,10 @@
   }, 20000);
 </script>
 
-<main class="flex h-screen flex-row flex-wrap justify-center gap-4">
+<FirebaseUi />
+<main class="flex flex-row flex-wrap justify-center gap-4">
   <!-- TODO separate components with component events -->
-
+  <!-- TODO routing -->
   {#if $editMode}
     <SearchView />
   {:else}
@@ -60,11 +75,8 @@
         ? 'justify-center'
         : ''} gap-2 sm:w-72"
     >
-      <FirebaseUi />
-
       <StopsView
         on:stopSelected={(event) => {
-          // TODO type event
           getStopData(event.detail.id);
         }}
       />
@@ -85,9 +97,9 @@
           </span><span> Add stop</span>
         </button>
 
-        {#if $savedStops.length > 0}
+        <!-- {#if $savedStops.length > 0}
           <DeleteAllStopsBtn />
-        {/if}
+        {/if} -->
       </div>
     </div>
 
@@ -98,7 +110,7 @@
 
     {#if departures.length > 0}
       <div
-        class="flex h-screen w-full flex-col gap-2 pt-4 sm:w-72 sm:overflow-auto"
+        class="flex h-screen w-full flex-col gap-2 pt-4 pr-4 sm:w-72 sm:overflow-auto"
       >
         <div class="flex items-center gap-2">
           <button

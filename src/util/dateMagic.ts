@@ -1,3 +1,5 @@
+// FIXME should null cases be handled elsewhere?
+
 export function epochToDate(epochDate: number | null | undefined): Date | null {
   if (epochDate === undefined || epochDate === null) return null;
   let date = new Date(0);

@@ -4,12 +4,13 @@ type baseResponse = {
   code?: number;
   status?: components["schemas"]["Status"];
   text?: string;
-  data?: any;
+  data?: object;
 };
 
+// TODO type parsing with zod
 export async function fetchData<ResponseType extends baseResponse>(
   url: string,
-  params: Object
+  params: object
 ) {
   let loading = true;
   let error = "";
@@ -18,7 +19,7 @@ export async function fetchData<ResponseType extends baseResponse>(
   await fetch(url + new URLSearchParams(params as any))
     .then((response) => response.json())
     .then((d: ResponseType) => {
-      if (d.code !== 200) {
+      if (d.code !== 200 || !d.data) {
         throw new Error(d.status);
       }
       data = d.data;

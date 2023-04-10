@@ -12,7 +12,7 @@ module.exports = {
   overrides: [
     {
       files: ["*.svelte"],
-      parser: "svelte-eslint-parser",
+      parser: "svelte3/svelte3",
     },
   ],
   parser: "@typescript-eslint/parser",
